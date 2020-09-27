@@ -1,5 +1,5 @@
 <script lang="ts">
-import { computed, defineComponent, h, inject, PropType, reactive } from 'vue';
+import { computed, defineComponent, h, inject, PropType, reactive, ref } from 'vue';
 import { getShowKeys, getCellWidth, getRenderType } from '../utils';
 import NumberComp from '/@/components/Tools/Number.vue';
 import StringComp from '/@/components/Tools/String.vue';
@@ -20,17 +20,20 @@ export default defineComponent({
     },
   },
   setup(props, ctx) {
-    const pos = reactive({ top: 0, left: 0 });
+    const currentEditCell = ref('');
+    const editCellStyle = reactive({ width: 0, height: 0, top: 0, left: 0 });
 
     const columnKeys = computed(() =>
       props.columns.map((col: Table.ColumnsItem) => col.keyCode),
     );
 
-    const onClick = (e: MouseEvent) => {
-      debugger
-      // const { offsetTop, offsetLeft } = e.currentTarget!;
-      // pos.top = offsetLeft;
-      // pos.left = offsetTop;
+    const onClick = (e: MouseEvent, columnRowCell: string) => {
+      const { offsetWidth, offsetHeight, offsetTop, offsetLeft } = e.currentTarget as HTMLElement;
+      editCellStyle.width = offsetWidth;
+      editCellStyle.height = offsetHeight;
+      editCellStyle.top = offsetTop;
+      editCellStyle.left = offsetLeft;
+      currentEditCell.value = columnRowCell;
     }
 
     const getValueType = (keyCode: string) => {
@@ -40,11 +43,17 @@ export default defineComponent({
 
     const tableBody = (children: any[]) => h('section', { class: 'table__body' }, children);
 
-    const tableCell = (key: string, index: number, children: any[]) => h('span', {
-      class: `table__cell cell_${key}_${index}`,
-      style: { width: getCellWidth(props.columns, key) },
-      onDblClick: onClick
-    }, children);
+    const tableCell = (key: string, index: number, children: any[]) => {
+      const columnRowCell = `cell_${key}_${index}`;
+      const className = `table__cell ${columnRowCell} ${
+        currentEditCell.value === columnRowCell ? 'edit' : ''
+      }`;
+      return h('span', {
+        class: className.trim(),
+        style: { width: getCellWidth(props.columns, key) },
+        onDblClick: (e: MouseEvent) => onClick(e, columnRowCell)
+      }, children);
+    }
 
     const wrapper = (value: any, type?: Table.ColumnItemType) => {
       if (!type) return value;
@@ -52,15 +61,18 @@ export default defineComponent({
       return compMap[type] ? h(compMap[type] as any, { value }) : value;
     }
 
+    const editCell = () => h('span', {
+      class: 'edit-cell',
+      style: {
+        // width: `${editCellStyle.width}px`,
+        // height: `${editCellStyle.height}px`,
+        top: `${editCellStyle.top}px`,
+        left: `${editCellStyle.left}px`,
+      } 
+    });
+
     return () => tableBody([
-      h('span', { style: {
-        width: '100px',
-        height: '100px',
-        position: 'fixed',
-        top: `${pos.top}px`,
-        left: `${pos.left}px`,
-        background: '#666'
-      } }),
+      editCell(),
       props.dataSource.map((dataItem: Table.ColumnsItem, index: number) =>
         h('div', { class: 'table__row' }, [
           getShowKeys(columnKeys.value, dataItem).map((key) => tableCell(key, index, [
