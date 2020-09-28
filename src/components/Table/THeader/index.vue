@@ -18,32 +18,34 @@ export default defineComponent({
     },
   },
   setup(props, ctx) {
+    const onAddColumn: Function | undefined = inject('addColumn');
+
     const defaultValueType = ref<Table.ColumnItemType>('STRING');
     const valueTypeList = ref<{ label: string, valueType: Table.ColumnItemType }[]>([
       { label: '字符串', valueType: 'STRING' },
       { label: '数字', valueType: 'NUMBER' },
       { label: '日期', valueType: 'DATE' },
     ]);
-
-    const onAddColumn: Function | undefined = inject('addColumn');
-
-    const getCellWidth = (width?: number) => width ? `${width}px` : undefined;
-
-    // 编辑
-    const onColumnEdit = (column: Table.ColumnsItem) => {};
-
+    
+    // 添加
     const addColumn = (item: Table.ColumnsItem) => {
       if (onAddColumn) onAddColumn(item);
     };
 
+    // 编辑
+    const onColumnEdit = (column: Table.ColumnsItem) => {};
+
+    const getCellWidth = (width?: number) => width ? `${width}px` : undefined;
+
     return () => h('section', {
       class: `table__header ${props?.wrapperClass || ''}`.trim()
     }, [
+      h('span', { class: 'label table__cell', }, '✨'),
       props.columns.map((col) =>
         h('span', {
           key: col.keyCode,
           class: 'label table__cell',
-          style: { width: getCellWidth(col.width) },
+          style: { width: getCellWidth(col.width), minWidth: getCellWidth(col.width) },
         }, [
           col.label,
           edit({ class: 'edit', onClick: () => onColumnEdit(col) }),

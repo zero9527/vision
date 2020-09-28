@@ -1,6 +1,6 @@
 <script lang="ts">
-import { computed, defineComponent, h, inject, PropType, reactive, ref } from 'vue';
-import { getShowKeys, getCellWidth, getRenderType } from '../utils';
+import { computed, defineComponent, h, inject, PropType, reactive, ref, watch } from 'vue';
+import { getCellWidth, getRenderType, getValueType } from '../utils';
 import NumberComp from '/@/components/Tools/Number.vue';
 import StringComp from '/@/components/Tools/String.vue';
 import DateComp from '/@/components/Tools/Date.vue';
@@ -23,6 +23,7 @@ export default defineComponent({
     const currentEditCell = ref('');
     const editCellStyle = reactive({ width: 0, height: 0, top: 0, left: 0 });
 
+    // 获取需要渲染的列 keyCode
     const columnKeys = computed(() =>
       props.columns.map((col: Table.ColumnsItem) => col.keyCode),
     );
@@ -36,11 +37,6 @@ export default defineComponent({
       currentEditCell.value = columnRowCell;
     }
 
-    const getValueType = (keyCode: string) => {
-      const item = props.columns.find(i => i.keyCode === keyCode);
-      return item?.valueType;
-    }
-
     const tableBody = (children: any[]) => h('section', { class: 'table__body' }, children);
 
     const tableCell = (key: string, index: number, children: any[]) => {
@@ -48,11 +44,15 @@ export default defineComponent({
       const className = `table__cell ${columnRowCell} ${
         currentEditCell.value === columnRowCell ? 'edit' : ''
       }`;
-      return h('span', {
+      const width = getCellWidth(props.columns, key);
+      return h('div', {
         class: className.trim(),
-        style: { width: getCellWidth(props.columns, key) },
-        onDblClick: (e: MouseEvent) => onClick(e, columnRowCell)
-      }, children);
+        style: { width, minWidth: width  },
+        onClick: (e: MouseEvent) => onClick(e, columnRowCell)
+      }, [
+        h('div', { class: 'show-content' }, children),
+        h('div', { class: 'edit-content' })
+      ]);
     }
 
     const wrapper = (value: any, type?: Table.ColumnItemType) => {
@@ -61,29 +61,51 @@ export default defineComponent({
       return compMap[type] ? h(compMap[type] as any, { value }) : value;
     }
 
+    watch(() => currentEditCell.value, (value, oldValue) => {
+      if (oldValue) {
+        let oldEditCell = document.querySelector(`.${oldValue} .edit-content`);
+        if (oldEditCell) {
+          oldEditCell.innerHTML = '';
+          oldEditCell = null;
+        }
+      }
+      // console.log(editCell());
+      let cell = document.querySelector(`.${value} .edit-content`);
+      // console.log(cell)
+      let input: HTMLInputElement | null = document.createElement('input');
+      input.style.cssText = `width: ${editCellStyle.width}px; height: ${editCellStyle.height}px; border: none;`;
+      input.placeholder = '单元格编辑';
+      input.autofocus = true;
+      cell!.append(input);
+      cell = null;
+      input = null;
+    })
+
+    /**
+     * 滚动时位置问题，可以试试点击时候再手动渲染组件，
+     * 然后append插入 .table__cell.edit 的元素内
+     */
     const editCell = () => h('span', {
       class: 'edit-cell',
       style: {
-        // width: `${editCellStyle.width}px`,
+        width: `${editCellStyle.width}px`,
         // height: `${editCellStyle.height}px`,
-        top: `${editCellStyle.top}px`,
-        left: `${editCellStyle.left}px`,
-      } 
+      }
     });
 
     return () => tableBody([
-      editCell(),
       props.dataSource.map((dataItem: Table.ColumnsItem, index: number) =>
         h('div', { class: 'table__row' }, [
-          getShowKeys(columnKeys.value, dataItem).map((key) => tableCell(key, index, [
+          h('div', { class: 'table__cell' }, [index+1]), 
+          columnKeys.value.map((key) => tableCell(key, index+1, [
             wrapper(
-              getRenderType(h, { columns: props.columns, dataItem, key }), 
-              getValueType(key)
+              getRenderType(h, { columns: props.columns, dataItem, key }),
+              getValueType(props.columns, key)
             )
           ])),
         ]),
       ),
-      h(AddRow, { className: 'table__cell' }),
+      h(AddRow),
     ]);
   },
 });

@@ -1,5 +1,5 @@
 <template>
-  <div class="table__row">
+  <div class="table__cell">
     <Add @click="addRow" />
   </div>
 </template>
@@ -17,9 +17,6 @@ export default defineComponent({
     checkedValue: {
       type: String,
     },
-    menu: {
-      type: Array as PropType<string[]>
-    }
   },
   setup(props, ctx) {
     const onAddRow: Function | undefined = inject('addRow');
@@ -36,6 +33,9 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
+.table__cell {
+  border-bottom: none;
+}
 .add-column {
   display: inline-block;
 }

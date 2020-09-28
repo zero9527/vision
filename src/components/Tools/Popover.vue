@@ -1,6 +1,6 @@
 <template>
   <div class="popover" ref="popoverRef">
-    <span class="popover__content" ref="popover__content" @click="onAddClick">
+    <span class="popover__content" ref="popover__content" @click="onShowClick">
       <slot />
     </span>
     <div 
@@ -15,7 +15,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive, ref } from 'vue';
+import { defineComponent, onMounted, reactive, ref, watch } from 'vue';
+import { useClickOutside } from '/@/hooks';
 
 export default defineComponent({
   name: 'popover',
@@ -31,22 +32,33 @@ export default defineComponent({
     const pos = reactive({ top: '100%', right: '0' });
     const dialogVisible = ref(false);
 
+    const onClickOutside = () => closeDialog();
+
+    const {
+      addListener, 
+      removeListener 
+    } = useClickOutside('.popover__dialog', onClickOutside);
+
     onMounted(() => {
       if (!props.absolute) renderPopoverFixed(); 
     });
 
+    watch(() => dialogVisible.value, (val) => {
+      if (val) setTimeout(() => addListener(), 10);
+      else removeListener();
+    })
+
     // 固定定位
     const renderPopoverFixed = () => {
       const { offsetTop, offsetRight } = popoverRef.value!;
-      console.log(offsetTop, offsetRight);
+      // console.log(offsetTop, offsetRight);
       pos.top = offsetTop;
       pos.right = offsetRight;
     };
 
-    const onAddClick = () => {
+    const onShowClick = () => {
       dialogVisible.value = !dialogVisible.value;
-      console.log(popover__content.value.scrollIntoView)
-      popover__content.value!.scrollIntoView({ inline: 'end' });
+      popover__content.value!.scrollIntoView();
     }
 
     const closeDialog = () => {
@@ -58,7 +70,7 @@ export default defineComponent({
       popover__content,
       pos,
       dialogVisible,
-      onAddClick,
+      onShowClick,
       closeDialog
     }
   }

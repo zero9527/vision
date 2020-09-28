@@ -13,7 +13,7 @@ function _validResponse (res: any) {
 /**
  * 获取数据自定义Hook
  */
-const useFetchData = ({ isReady, fetchFn, validResponse }: UseFetchdata) => {
+export function useFetchData({ isReady, fetchFn, validResponse }: UseFetchdata) {
   let isDestroyed = false;
   const errorResData = ref();
   const isLoading = ref(false);
@@ -48,5 +48,3 @@ const useFetchData = ({ isReady, fetchFn, validResponse }: UseFetchdata) => {
     fetchData,
   }
 }
-
-export default useFetchData;

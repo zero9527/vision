@@ -16,7 +16,7 @@ import { onMounted, onUnmounted, reactive, toRefs } from 'vue';
       console.log(x.value, y.value);
     });
  */
-export const useScroll = (selector?: string) => {
+export function useScroll(selector?: string) {
   const pos = reactive({ x: 0, y: 0 });
 
   const onScroll = (e: Event) => {

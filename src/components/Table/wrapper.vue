@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <main class="wrapper">
     <table-bar 
       :tables="['班级表', '成绩表', '课程表']" 
       :active="activeTable" 
@@ -14,12 +14,12 @@
       @addColumn="onAddColumn"
       @addRow="onAddRow"
     />
-  </div>
+  </main>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch } from 'vue';
-import TableBar from '/@/components/TableBar/index.vue';
+import TableBar from '../TableBar/index.vue';
 import TTable from './index.vue';
 import { Table } from './types.d';
 import { useScroll } from '/@/hooks';
@@ -58,27 +58,29 @@ export default defineComponent({
 
     onMounted(() => {
       columns.value = [
-        { label: '序号', keyCode: 'no', valueType: 'NUMBER' },
         { label: '姓名', keyCode: 'name', valueType: 'STRING' },
         { label: '时间', keyCode: 'time', valueType: 'DATE', width: 260 },
-        { label: '学号', keyCode: 'name', valueType: 'STRING' },
-        { label: '爱好', keyCode: 'name', valueType: 'STRING' },
-        { label: '身高', keyCode: 'name', valueType: 'STRING' },
-        { label: '体重', keyCode: 'name', valueType: 'STRING' },
-        { label: '身份', keyCode: 'name', valueType: 'STRING' },
-        { label: '手机号', keyCode: 'name', valueType: 'STRING' },
+        { label: '学号', keyCode: 'sid', valueType: 'NUMBER' },
+        { label: '爱好', keyCode: 'like', valueType: 'STRING' },
+        { label: '身高', keyCode: 'height', valueType: 'STRING' },
+        { label: '体重', keyCode: 'weight', valueType: 'STRING' },
+        { label: '手机号', keyCode: 'phone', valueType: 'NUMBER', width: 140 },
       ];
       loadMore();
     });
 
     const loadMore = () => {
       const list = [];
-      for (let i = startIndex.value; i < startIndex.value + 2; i++) {
+      for (let i = startIndex.value; i < startIndex.value + 100; i++) {
         list.push({
           id: i + 1,
-          no: i + 1,
           name: `小明-${i + 1}`,
           time: new Date().toString(),
+          sid: i + 1,
+          like: '运动、篮球、爬山',
+          height: '170cm',
+          weight: '60kg',
+          phone: 13000000000
         });
       }
       console.log('loadMore');

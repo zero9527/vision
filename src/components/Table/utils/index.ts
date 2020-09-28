@@ -8,15 +8,6 @@ export function getColumnByKeyCode(columns: Table.ColumnsItem[], keyCode: string
   return item;
 }
 
-// 获取显示的key
-export function getShowKeys(columnKeys: string[], item: Table.ColumnsItem) {
-  const filterArr: string[] = [];
-  Object.keys(item).forEach((key) => {
-    if (columnKeys.includes(key)) filterArr.push(key);
-  });
-  return filterArr;
-}
-
 // 获取column宽度width
 export function getCellWidth(columns: Table.ColumnsItem[], key: string) {
   const item = getColumnByKeyCode(columns, key);
@@ -39,3 +30,12 @@ export function getRenderType(
     ? columnItem?.render(h, dataItem)
     : dataItem[columnItem.keyCode];
 }
+
+// valueType
+export function getValueType(columns: Table.ColumnsItem[], keyCode: string) {
+  const item = columns.find(i => i.keyCode === keyCode);
+  return item?.valueType;
+}
+
+// 单元格编辑
+

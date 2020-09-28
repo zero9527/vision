@@ -2,10 +2,18 @@
 @bg-color: rgb(240,240,240);
 @bg-color-heavy: rgb(230, 230, 230);
 @primary-color: cornflowerblue;
+@zIndex-level1: 1;
+@zIndex-level2: 10;
+@zIndex-level3: 20;
+@zIndex-level4: 100;
+@zIndex-level5: 200;
+@zIndex-leveln: 1000;
 
 .table {
   width: 100%;
   flex: auto;
+  display: flex;
+  flex-direction: column;
   overflow: auto;
 
   &.border {
@@ -19,16 +27,6 @@
 
   &__row {
     display: flex;
-
-    &:nth-of-type(2n) {
-      background-color: @bg-color;
-    }
-    &:not(:last-of-type) {
-      border-bottom: 1px solid @border-color;
-    }
-    &:hover {
-      background-color: @bg-color-heavy;
-    }
   }
 
   &__cell {
@@ -39,53 +37,74 @@
     align-items: center;
     padding: 8px 12px;
     border-right: 1px solid @border-color;
+    border-bottom: 1px solid @border-color;
     line-height: 1.2;
+    
+    &:hover {
+      background-color: @bg-color-heavy;
+    }
 
     &.edit {
       
       &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 1;
-        background-color: @bg-color;
+        // content: '';
+        // position: absolute;
+        // left: -2px;
+        // top: -2px;
+        // width: 100%;
+        // height: 100%;
+        // border: 2px solid @primary-color;
+        // z-index: @zIndex-level1;
+      }
+      
+      .show-content {
+        visibility: hidden;
       }
 
-      &::after {
-        content: '';
+      .edit-content {
         position: absolute;
-        left: -2px;
-        top: -2px;
-        width: 100%;
-        height: 100%;
+        top: 0;
+        left: 0;
+        background: #fff;
         border: 2px solid @primary-color;
-        z-index: 1;
+        z-index: @zIndex-level2;
       }
+    }
+
+    .show-content {
+      word-break: break-all;
     }
   }
 
   &__header {
+    position: sticky;
+    top: 0;
+    min-width: 100%;
     display: inline-block;
-    border-top: 1px solid @border-color;
-    border-bottom: 1px solid @border-color;
-    background-color: @bg-color;
+    border-left: 1px solid @border-color;
     white-space: nowrap;
+    background-color: @bg-color;
+    z-index: @zIndex-level1;
+
+    .table__cell {
+      border-top: 1px solid @border-color;
+      border-bottom: 1px solid @border-color;
+      background-color: @bg-color;
+    }
   }
 
   &__body {
-    width: 100%;
+    min-width: 100%;
     display: inline-block;
     border-bottom: 1px solid @border-color;
+    border-left: 1px solid @border-color;
 
     .edit-cell {
       width: 100px;
       height: 10px;
-      position: fixed;
+      position: absolute;
       background-color: cadetblue;
-      z-index: 10;
+      z-index: @zIndex-level2;
     }
   }
 }
