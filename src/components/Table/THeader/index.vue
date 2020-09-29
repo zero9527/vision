@@ -51,7 +51,7 @@ export default defineComponent({
           edit({ class: 'edit', onClick: () => onColumnEdit(col) }),
         ]),
       ),
-      h(AddColumn, {
+      props.columns.length < 100 && h(AddColumn, {
         defaultValueType: defaultValueType.value,
         valueTypeList: valueTypeList.value,
         onConfirm: addColumn

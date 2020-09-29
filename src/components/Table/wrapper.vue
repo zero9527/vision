@@ -57,8 +57,8 @@ export default defineComponent({
     // );
 
     onMounted(() => {
-      columns.value = [
-        { label: '姓名', keyCode: 'name', valueType: 'STRING' },
+      const baseColumns: Table.ColumnsItem[] = [
+        { label: '姓名', keyCode: 'name', valueType: 'STRING', fixed: true },
         { label: '时间', keyCode: 'time', valueType: 'DATE', width: 260 },
         { label: '学号', keyCode: 'sid', valueType: 'NUMBER' },
         { label: '爱好', keyCode: 'like', valueType: 'STRING' },
@@ -66,12 +66,18 @@ export default defineComponent({
         { label: '体重', keyCode: 'weight', valueType: 'STRING' },
         { label: '手机号', keyCode: 'phone', valueType: 'NUMBER', width: 140 },
       ];
+      const addColumns: Table.ColumnsItem[] = new Array(100).fill('').map((item, index) => ({
+        label: 'column'+index,
+        keyCode: 'key'+index,
+        valueType: 'STRING'
+      }));
+      columns.value = [...baseColumns, ...addColumns];
       loadMore();
     });
 
     const loadMore = () => {
       const list = [];
-      for (let i = startIndex.value; i < startIndex.value + 100; i++) {
+      for (let i = startIndex.value; i < startIndex.value + 50; i++) {
         list.push({
           id: i + 1,
           name: `小明-${i + 1}`,
@@ -83,6 +89,11 @@ export default defineComponent({
           phone: 13000000000
         });
       }
+      list.forEach(item => {
+        for (let i=0; i< 100; i++) {
+          item[`key${i}`] = `key${i}`;
+        }
+      })
       console.log('loadMore');
       dataSource.value = [...dataSource.value, ...list];
       startIndex.value = dataSource.value.length;

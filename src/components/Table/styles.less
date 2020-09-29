@@ -26,12 +26,18 @@
   }
 
   &__row {
-    display: flex;
+    display: inline-flex;
+
+    &.active {
+      .table__cell {
+        background-color: @bg-color;
+      }
+    }
   }
 
   &__cell {
-    width: 80px;
-    min-width: 80px;
+    width: 100px;
+    min-width: 100px;
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -40,31 +46,17 @@
     border-bottom: 1px solid @border-color;
     line-height: 1.2;
     
-    &:hover {
-      background-color: @bg-color-heavy;
-    }
-
     &.edit {
-      
-      &::before {
-        // content: '';
-        // position: absolute;
-        // left: -2px;
-        // top: -2px;
-        // width: 100%;
-        // height: 100%;
-        // border: 2px solid @primary-color;
-        // z-index: @zIndex-level1;
-      }
-      
       .show-content {
         visibility: hidden;
       }
 
       .edit-content {
+        width: 100%;
+        height: auto;
         position: absolute;
-        top: 0;
-        left: 0;
+        top: -2px;
+        left: -2px;
         background: #fff;
         border: 2px solid @primary-color;
         z-index: @zIndex-level2;
@@ -79,12 +71,11 @@
   &__header {
     position: sticky;
     top: 0;
-    min-width: 100%;
-    display: inline-block;
+    width: fit-content;
     border-left: 1px solid @border-color;
     white-space: nowrap;
     background-color: @bg-color;
-    z-index: @zIndex-level1;
+    z-index: @zIndex-level3 + 1;
 
     .table__cell {
       border-top: 1px solid @border-color;
@@ -94,7 +85,7 @@
   }
 
   &__body {
-    min-width: 100%;
+    width: fit-content;
     display: inline-block;
     border-bottom: 1px solid @border-color;
     border-left: 1px solid @border-color;
