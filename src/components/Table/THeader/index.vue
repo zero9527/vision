@@ -40,7 +40,7 @@ export default defineComponent({
     return () => h('section', {
       class: `table__header ${props?.wrapperClass || ''}`.trim()
     }, [
-      h('span', { class: 'label table__cell', }, '✨'),
+      h('span', { class: 'label table__cell', cell: 'index' }, '✨'),
       props.columns.map((col) =>
         h('span', {
           key: col.keyCode,

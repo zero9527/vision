@@ -1,9 +1,21 @@
+export type UseClickOutsideReturns = {
+  addListener: () => void;
+  removeListener: () => void;
+}
+
 /**
  * useClickOutside
- * @param targetSelector {string} 目标元素选择器，之外的视为外部
+ * @description 可以手动添加监听 addListener，移除监听 removeListener，任意地方使用
+ * @param target {Element/string} 目标元素或选择器，之外的视为外部
  * @param cb {function} 回调函数
+ * @example
+ *  const onClickOutside = () => closeDialog();
+    const {
+      addListener, 
+      removeListener 
+    } = useClickOutside('.popover__dialog', onClickOutside);
  */
-export function useClickOutside(targetSelector: string, cb: Function) {
+export function useClickOutside(target: Element | string, cb: Function): UseClickOutsideReturns {
   let isReady = false;
 
   const addListener = () => {
@@ -17,11 +29,13 @@ export function useClickOutside(targetSelector: string, cb: Function) {
   };
 
   const clickHandler = (e: MouseEvent) => {
-    let target = document.querySelector(`${targetSelector}`);
-    // console.log(isReady, target, e.target);
-    if (isReady && cb && !target?.contains(e.target as Node)) {
+    let _target = typeof target === 'string' 
+      ? document.querySelector(`${target}`)
+      : target;
+    // console.log(isReady, _target, e.target);
+    if (isReady && cb && !_target?.contains(e.target as Node)) {
       cb();
-      target = null;
+      _target = null;
       removeListener();
     }
   }

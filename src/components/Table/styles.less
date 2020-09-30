@@ -10,6 +10,7 @@
 @zIndex-leveln: 1000;
 
 .table {
+  position: relative;
   width: 100%;
   flex: auto;
   display: flex;
@@ -27,38 +28,61 @@
 
   &__row {
     display: inline-flex;
+    position: absolute;
+    border-left: 1px solid @border-color;
+
+    &:hover {
+      .move {
+        visibility: visible;
+      }
+    }
 
     &.active {
       .table__cell {
         background-color: @bg-color;
       }
     }
+    
+    .move {
+      visibility: hidden;
+      cursor: pointer;
+    }
   }
 
   &__cell {
+    position: relative;
     width: 100px;
     min-width: 100px;
-    position: relative;
     display: inline-flex;
     align-items: center;
     padding: 8px 12px;
     border-right: 1px solid @border-color;
     border-bottom: 1px solid @border-color;
     line-height: 1.2;
-    
+
+    &[cell="index"] {
+      position: sticky;
+      left: 0;
+      border-right: 2px solid rgba(0,0,0,0.2) !important;
+      background-color: #fff;
+      z-index: @zIndex-level2;
+    }
+
     &.edit {
       .show-content {
         visibility: hidden;
       }
 
       .edit-content {
-        width: 100%;
+        width: calc(100% + 6px);
         height: auto;
         position: absolute;
-        top: -2px;
-        left: -2px;
+        top: -3px;
+        left: -3px;
         background: #fff;
-        border: 2px solid @primary-color;
+        border: 3px solid @primary-color;
+        border-radius: 2px;
+        box-shadow: 0 0 1px @primary-color;
         z-index: @zIndex-level2;
       }
     }
@@ -85,17 +109,9 @@
   }
 
   &__body {
+    position: absolute;
+    margin-top: 37.2px; // &__header 的高度
     width: fit-content;
     display: inline-block;
-    border-bottom: 1px solid @border-color;
-    border-left: 1px solid @border-color;
-
-    .edit-cell {
-      width: 100px;
-      height: 10px;
-      position: absolute;
-      background-color: cadetblue;
-      z-index: @zIndex-level2;
-    }
   }
 }
