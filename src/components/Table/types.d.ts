@@ -10,7 +10,8 @@ export declare namespace Table {
 
   export interface Provide extends Props {}
 
-  export type ColumnItemType = 'STRING' | 'NUMBER' | 'DATE'; // 组件类型，在新增列时确定
+  // 组件类型，在新增列时确定
+  export type ColumnItemType = 'TEXT' | 'NUMBER' | 'DATE' | 'SELECT' | 'ADDRESS';
 
   export interface ColumnsItem {
     keyCode: string; // 数据源中显示的字段对应的属性名

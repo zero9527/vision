@@ -1,9 +1,25 @@
 <script lang="ts">
-import { defineComponent, h, inject, PropType, ref, RenderFunction, VNode } from 'vue';
+import { computed, defineComponent, h, inject, PropType, ref, RenderFunction, VNode } from 'vue';
 import AddColumn from '../../Tools/AddColumn.vue';
+import { fixedLeft } from '../utils';
 import { Table } from '../types.d';
 
 const edit = (props: object) => h('span', props, '🖊');
+
+const getCellWidth = (width?: number) => width ? `${width}px` : undefined;
+
+const tableHeader = (wrapperClass: string, children: any[]) => h('section', {
+  class: `table__header ${wrapperClass}`.trim()
+}, children);
+
+const headerCell = (col: Table.ColumnsItem, onColumnEdit: (col: Table.ColumnsItem) => void) => h('span', {
+  key: col.keyCode,
+  class: 'label table__cell',
+  style: { width: getCellWidth(col.width), minWidth: getCellWidth(col.width) },
+}, [
+  col.label,
+  edit({ class: 'edit', onClick: () => onColumnEdit(col) }),
+]);
 
 // header
 export default defineComponent({
@@ -20,12 +36,15 @@ export default defineComponent({
   setup(props, ctx) {
     const onAddColumn: Function | undefined = inject('addColumn');
 
-    const defaultValueType = ref<Table.ColumnItemType>('STRING');
+    const defaultValueType = ref<Table.ColumnItemType>('TEXT');
     const valueTypeList = ref<{ label: string, valueType: Table.ColumnItemType }[]>([
-      { label: '字符串', valueType: 'STRING' },
+      { label: '字符串', valueType: 'TEXT' },
       { label: '数字', valueType: 'NUMBER' },
       { label: '日期', valueType: 'DATE' },
     ]);
+
+    const columnsFixed = computed(() => props.columns.filter(i => i.fixed));
+    const columnsNormal = computed(() => props.columns.filter(i => !i.fixed));
     
     // 添加
     const addColumn = (item: Table.ColumnsItem) => {
@@ -35,22 +54,12 @@ export default defineComponent({
     // 编辑
     const onColumnEdit = (column: Table.ColumnsItem) => {};
 
-    const getCellWidth = (width?: number) => width ? `${width}px` : undefined;
-
-    return () => h('section', {
-      class: `table__header ${props?.wrapperClass || ''}`.trim()
-    }, [
-      h('span', { class: 'label table__cell', cell: 'index' }, '✨'),
-      props.columns.map((col) =>
-        h('span', {
-          key: col.keyCode,
-          class: 'label table__cell',
-          style: { width: getCellWidth(col.width), minWidth: getCellWidth(col.width) },
-        }, [
-          col.label,
-          edit({ class: 'edit', onClick: () => onColumnEdit(col) }),
-        ]),
-      ),
+    return () => tableHeader(props?.wrapperClass || '', [
+      fixedLeft([
+        h('span', { class: 'label table__cell', 'data-cell': 'index' }, '✨'),
+        columnsFixed.value.map((col) => headerCell(col, onColumnEdit)),
+      ]),
+      columnsNormal.value.map((col) => headerCell(col, onColumnEdit)),
       props.columns.length < 100 && h(AddColumn, {
         defaultValueType: defaultValueType.value,
         valueTypeList: valueTypeList.value,

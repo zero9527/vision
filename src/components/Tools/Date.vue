@@ -1,5 +1,5 @@
 <template>
-  <span class="date">{{ value }}</span>
+  <input class="date" type="date" :value="value" @change="onChange" />
 </template>
 
 <script lang="ts">
@@ -11,12 +11,24 @@ export default defineComponent({
     value: {
       type: String
     }
+  },
+  setup(props, ctx) {
+    const onChange = (e: any) => {
+      ctx.emit('valueChange', e);
+    }
+
+    return {
+      onChange
+    }
   }
 })
 </script>
 
 <style lang="less" scoped>
 .date {
-  background-color: paleturquoise;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  outline: none;
 }
 </style>

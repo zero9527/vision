@@ -1,4 +1,4 @@
-@border-color: #ccc;
+@border-color: #ddd;
 @bg-color: rgb(240,240,240);
 @bg-color-heavy: rgb(230, 230, 230);
 @primary-color: cornflowerblue;
@@ -29,7 +29,6 @@
   &__row {
     display: inline-flex;
     position: absolute;
-    border-left: 1px solid @border-color;
 
     &:hover {
       .move {
@@ -60,13 +59,13 @@
     border-bottom: 1px solid @border-color;
     line-height: 1.2;
 
-    &[cell="index"] {
-      position: sticky;
-      left: 0;
-      border-right: 2px solid rgba(0,0,0,0.2) !important;
-      background-color: #fff;
-      z-index: @zIndex-level2;
-    }
+    // &[cell="index"] {
+    //   position: sticky;
+    //   left: 0;
+    //   border-right: 2px solid rgba(0,0,0,0.2) !important;
+    //   background-color: #fff;
+    //   z-index: @zIndex-level2;
+    // }
 
     &.edit {
       .show-content {
@@ -76,6 +75,7 @@
       .edit-content {
         width: calc(100% + 6px);
         height: auto;
+        min-height: calc(100% + 6px);
         position: absolute;
         top: -3px;
         left: -3px;
@@ -96,7 +96,6 @@
     position: sticky;
     top: 0;
     width: fit-content;
-    border-left: 1px solid @border-color;
     white-space: nowrap;
     background-color: @bg-color;
     z-index: @zIndex-level3 + 1;
@@ -113,5 +112,25 @@
     margin-top: 37.2px; // &__header 的高度
     width: fit-content;
     display: inline-block;
+  }
+  
+  .fixed-column {
+    position: sticky;
+    left: 0;
+    display: inline-flex;
+    border-left: 1px solid @border-color;
+    background-color: @bg-color;
+    z-index: @zIndex-level3;
+
+    &.shadow {
+      &::after {
+        content: '';
+        position: absolute;
+        right: -6px;
+        width: 6px;
+        height: 100%;
+        background-color: rgba(0,0,0,0.1);
+      }
+    }
   }
 }

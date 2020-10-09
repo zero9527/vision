@@ -1,5 +1,11 @@
 import { CreateElement } from 'vue/types/umd';
+import { h } from 'vue';
 import { Table } from '../types.d';
+
+// 固定列
+export function fixedLeft(children: any[]) {
+  return h('div', { class: 'fixed-column shadow' }, children);
+}
 
 // 获取列宽度
 export function getColumnByKeyCode(columns: Table.ColumnsItem[], keyCode: string) {
@@ -37,5 +43,40 @@ export function getValueType(columns: Table.ColumnsItem[], keyCode: string) {
   return item?.valueType;
 }
 
-// 单元格编辑
+// 单元格 静态显示
+export function renderStaticCell(h: any, value: any, valueType: Table.ColumnItemType) {
+  // 数字
+  if (valueType === 'NUMBER') {
+    return h('span', { 
+      style: { backgroundColor: 'aquamarine' }
+    }, value);
+  }
 
+  // 日期
+  if (valueType === 'DATE') {
+    return h('span', { 
+      style: { fontFamily: 'monospace', fontSize: '14px' }
+    }, value);
+  }
+
+  // 短文本
+  if (valueType === 'TEXT') {
+    return h('span', { 
+      style: { backgroundColor: 'sandybrown' }
+    }, value);
+  }
+
+  // 单选
+  if (valueType === 'SELECT') {
+    return h('span', value)
+  }
+
+  // 默认直接显示
+  return h('span', value);
+}
+
+// 单元格编辑
+export function getCellValue(dataSource: any[], cellName: string) {
+  const [keyCode, index] = cellName.split('_') as [string, number];
+  return dataSource[index-1][keyCode];
+}

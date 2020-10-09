@@ -1,15 +1,15 @@
 <template>
-  <input class="number" type="number" placeholder="数字" :value="value" @change="onChange" />
+  <input class="text" type="text" placeholder="短文本" :defaultValue="value" @change="onChange" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'Number',
+  name: 'Text',
   props: {
     value: {
-      type: Number
+      type: String
     }
   },
   setup(props, ctx) {
@@ -25,7 +25,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-.number {
+.text {
   width: 100%;
   padding: 8px 12px;
   border: none;

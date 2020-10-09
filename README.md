@@ -1,24 +1,30 @@
 # vision
+简易的浏览器端Excel
 
-## Project setup
-```
-npm install
-```
+> `vite + vuejs3.x`
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## 单元格方案
 
-### Compiles and minifies for production
-```
-npm run build
-```
+### 框架渲染
 
-### Lints and fixes files
-```
-npm run lint
-```
+#### 好处
+- 方便
+- 数据驱动
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+#### 问题
+- 数量多的时候，渲染速度慢
+- 事件绑定多的时候，响应速度慢
+
+
+### 半框架+半原生
+
+#### 好处
+- 使用代理的方式，将事件绑定在上级；触发的时候在找到相应的单元格
+- 更新使用 `vnode + createApp` 直接更新
+
+
+## 结构
+
+## 实现
+
+## 总结

@@ -58,6 +58,11 @@ export default defineComponent({
     provide('addColumn', addColumn);
     provide('addRow', addRow);
 
+    const updateCell = (index: number, keyCode: string, value: any) => {
+      ctx.emit('updateCell', index, keyCode, value);
+    };
+    provide('updateCell', updateCell);
+
     const setTableScroll = (rect: DOMRect) => {
       const OFFSET_TOP = 100;
       const OFFSET_BOTTOM = 50;
@@ -69,7 +74,7 @@ export default defineComponent({
       if (rect.top < OFFSET_TOP) {
         tableRef.value!.scrollTop = scrollTop - rect.top;
       }
-      if (rect.left < 0) {
+      if (rect.left < OFFSET_LEFT) {
         tableRef.value!.scrollLeft = scrollLeft - Math.abs(rect.left) - OFFSET_LEFT;
       }
       if (rect.right >= offsetWidth) {

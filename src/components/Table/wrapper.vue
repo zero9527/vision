@@ -13,6 +13,7 @@
       :dataSource="dataSource"
       @addColumn="onAddColumn"
       @addRow="onAddRow"
+      @updateCell="updateCell"
     />
   </main>
 </template>
@@ -58,18 +59,18 @@ export default defineComponent({
 
     onMounted(() => {
       const baseColumns: Table.ColumnsItem[] = [
-        { label: '姓名', keyCode: 'name', valueType: 'STRING', fixed: true },
-        { label: '时间', keyCode: 'time', valueType: 'DATE', width: 260 },
+        { label: '姓名', keyCode: 'name', valueType: 'TEXT' },
+        { label: '时间', keyCode: 'time', valueType: 'DATE', width: 150 },
         { label: '学号', keyCode: 'sid', valueType: 'NUMBER' },
-        { label: '爱好', keyCode: 'like', valueType: 'STRING' },
-        { label: '身高', keyCode: 'height', valueType: 'STRING' },
-        { label: '体重', keyCode: 'weight', valueType: 'STRING' },
+        { label: '爱好', keyCode: 'like', valueType: 'TEXT', width: 160 },
+        { label: '身高', keyCode: 'height', valueType: 'TEXT' },
+        { label: '体重', keyCode: 'weight', valueType: 'TEXT' },
         { label: '手机号', keyCode: 'phone', valueType: 'NUMBER', width: 140 },
       ];
-      const addColumns: Table.ColumnsItem[] = new Array(100).fill('').map((item, index) => ({
+      const addColumns: Table.ColumnsItem[] = new Array(90).fill('').map((item, index) => ({
         label: 'column'+index,
         keyCode: 'key'+index,
-        valueType: 'STRING'
+        valueType: 'TEXT'
       }));
       columns.value = [...baseColumns, ...addColumns];
       loadMore();
@@ -78,10 +79,11 @@ export default defineComponent({
     const loadMore = () => {
       const list = [];
       for (let i = startIndex.value; i < startIndex.value + 50; i++) {
+        const time = new Date().toLocaleDateString().split('/').map(i => i.padStart(2, '0'));
         list.push({
           id: i + 1,
           name: `小明-${i + 1}`,
-          time: new Date().toString(),
+          time: time.join('-'),
           sid: i + 1,
           like: '运动、篮球、爬山',
           height: '170cm',
@@ -90,7 +92,7 @@ export default defineComponent({
         });
       }
       list.forEach(item => {
-        for (let i=0; i< 100; i++) {
+        for (let i=0; i< 90; i++) {
           item[`key${i}`] = `key${i}`;
         }
       })
@@ -115,6 +117,10 @@ export default defineComponent({
         });
     };
 
+    const updateCell = (index: number, keyCode: string, value: any) => {
+      dataSource.value[index-1][keyCode] = value;
+    };
+
     const onActiveChange = (active: string) => {
       activeTable.value = active;
     }
@@ -126,6 +132,7 @@ export default defineComponent({
       dataSource,
       onAddColumn,
       onAddRow,
+      updateCell,
       onActiveChange,
     };
   },
