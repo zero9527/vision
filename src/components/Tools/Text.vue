@@ -14,7 +14,7 @@ export default defineComponent({
   },
   setup(props, ctx) {
     const onChange = (e: any) => {
-      ctx.emit('valueChange', e);
+      ctx.emit('valueChange', e.target.value);
     }
 
     return {

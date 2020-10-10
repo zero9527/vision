@@ -33,7 +33,7 @@ export function getRenderType(
   const columnItem = getColumnByKeyCode(columns, key);
   if (!columnItem) return null;
   return columnItem?.render
-    ? columnItem?.render(h, dataItem)
+    ? columnItem.render(h, dataItem)
     : dataItem[columnItem.keyCode];
 }
 
@@ -59,24 +59,27 @@ export function renderStaticCell(h: any, value: any, valueType: Table.ColumnItem
     }, value);
   }
 
-  // 短文本
-  if (valueType === 'TEXT') {
-    return h('span', { 
-      style: { backgroundColor: 'sandybrown' }
-    }, value);
-  }
-
   // 单选
   if (valueType === 'SELECT') {
-    return h('span', value)
+    return h('span', {
+      style: { backgroundColor: 'sandybrown' }
+    }, value)
   }
 
   // 默认直接显示
   return h('span', value);
 }
 
-// 单元格编辑
-export function getCellValue(dataSource: any[], cellName: string) {
+// 分割 keyCode, index
+export function seperateKeycodeIndex(cellName: string): [string, number] {
   const [keyCode, index] = cellName.split('_') as [string, number];
-  return dataSource[index-1][keyCode];
+  return [keyCode, Number(index)];
+}
+
+// 单元格编辑
+export function getCellValue(changeRows: any, dataSource: any[], cellName: string) {
+  const [keyCode, index] = cellName.split('_') as [string, number];
+  // 优先使用修改的数据
+  if (changeRows[index]) return changeRows[index][keyCode];
+  return dataSource[index][keyCode];
 }

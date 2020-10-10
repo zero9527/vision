@@ -1,6 +1,10 @@
 import { VNode } from 'vue';
 import { CreateElement } from 'vue/types/umd';
 
+interface InputEvent extends Event {
+  target: HTMLInputElement;
+}
+
 export declare namespace Table {
   export interface Props {
     columns: ColumnsItem[];
@@ -24,6 +28,18 @@ export declare namespace Table {
     required?: boolean; // 必填
     width?: number; // 自定义列宽度
     render?: (h: CreateElement, item: any) => VNode | string;
+  }
+
+  export interface DataItem {
+    id: string;
+    name: string;
+    time: string;
+    sid: number;
+    like: string;
+    height: string;
+    weight: string;
+    phone: number;
+    [prop: string]: string | number;
   }
 
   // THeader

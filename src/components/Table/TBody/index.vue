@@ -1,6 +1,6 @@
 <script lang="ts">
-import { App, compile, computed, createApp, createBlock, createRenderer, createStaticVNode, DefineComponent, defineComponent, h, inject, nextTick, onUnmounted, PropType, reactive, ref, watch } from 'vue';
-import { fixedLeft, getCellValue, getCellWidth, getRenderType, getValueType, renderStaticCell } from '../utils';
+import { App, compile, computed, createApp, createBlock, createRenderer, createStaticVNode, DefineComponent, defineComponent, h, inject, nextTick, onMounted, onUnmounted, PropType, reactive, Ref, ref, unref, watch } from 'vue';
+import { fixedLeft, getCellValue, getCellWidth, getRenderType, getValueType, renderStaticCell, seperateKeycodeIndex } from '../utils';
 import NumberComp from '/@/components/Tools/Number.vue';
 import TextComp from '/@/components/Tools/Text.vue';
 import DateComp from '/@/components/Tools/Date.vue';
@@ -52,6 +52,10 @@ type CBdata = {
 };
 let outsideHandler: UseClickOutsideReturns;
 
+type ChangeRows = {
+  [prop: string]: Table.DataItem;
+}
+
 export default defineComponent({
   name: 'TBody',
   props: {
@@ -60,18 +64,24 @@ export default defineComponent({
       default: [],
     },
     dataSource: {
-      type: Array as PropType<Table.ColumnsItem[]>,
+      type: Array as PropType<Table.DataItem[]>,
       default: [],
     },
   },
   setup(props, ctx) {
+    const updatedRows = ref<ChangeRows>({});
+    const changeRows = ref<ChangeRows>({}); // 修改的行数据
     const cellHeight = ref(50);
     const editCell = ref('');
     const editCellStyle = reactive({ width: 0, height: 0, top: 0, left: 0 });
     const setTableScroll: Function = inject('setTableScroll') || console.log;
-    // const updateCell: Function | undefined = inject('updateCell');
+ 
+    onMounted(() => {
+      window.addEventListener('keyup', onTabClick);
+    })
 
     onUnmounted(() => {
+      window.removeEventListener('keyup', onTabClick);
       if (!editCell.value) return;
       const selector = getEditCellSelector(editCell.value);
       let oldEditCell = document.querySelector(selector) as Element;
@@ -79,16 +89,6 @@ export default defineComponent({
       if (EditComp) EditComp.unmount(editContent);
       editContent = null;
     });
-
-    watch(() => editCell.value, (value, oldValue) => {
-      if (oldValue) {
-        const selector = getEditCellSelector(oldValue);
-        let oldEditCell = document.querySelector(selector) as Element;
-        if (oldEditCell) {
-          oldEditCell.classList.remove('edit');
-        }
-      }
-    })
 
     // 获取需要渲染的列 keyCode
     const columnKeys = computed(() =>
@@ -105,38 +105,112 @@ export default defineComponent({
       col => !props.columns.find(i => col === i.keyCode)!.fixed)
     );
 
+    watch(() => updatedRows.value, (val) => {
+      console.log(unref(val))
+    }, { deep: true })
+
+    watch(() => editCell.value, (value, oldValue) => {
+      if (oldValue) {
+        updateRow(value, oldValue);
+        const selector = getEditCellSelector(oldValue);
+        let oldEditCell = document.querySelector(selector) as Element;
+        if (oldEditCell) {
+          oldEditCell.classList.remove('edit');
+        }
+      }
+    });
+
+    // 编辑一个单元格的时候，点击tab，切换到编辑同一行下一个单元格
+    const onTabClick = (e: KeyboardEvent) => {
+      if (!editCell.value) return;
+      if (e.keyCode === 9) {
+        const currentEditCell = document.querySelector('.table__cell.edit')!;
+        if (currentEditCell?.nextElementSibling) {
+          (currentEditCell.nextElementSibling as HTMLElement).click();
+        }
+      }
+    }
+
+    // 更新行状态
+    const updateRow = (value: string, oldValue: string) => {
+      const [keyCode, indexOld] = seperateKeycodeIndex(oldValue);
+      if (Number(value.split('_')[1]) === indexOld) return;
+
+      const oldActiveRow = changeRows.value[indexOld];
+      if (!oldActiveRow) return; // 第一一次编辑
+      
+      const oldActiveRowChanged = Object.keys(oldActiveRow)
+        .some(key => oldActiveRow[key] !== props.dataSource[indexOld][key]);
+      if (!oldActiveRowChanged) return; // 没有修改
+
+      // TODO: 第一次没问题，再次编辑回原来的数据 -- 不会 updating
+      if (updatedRows.value[indexOld]) {
+        const hasChange = Object.keys(updatedRows.value[indexOld])
+          .some(key => oldActiveRow[key] !== updatedRows.value[indexOld][key]);
+        if (!hasChange) return; // 已经更新过了
+      }
+
+      const rowEl = document.querySelector(`.table__row[index="${indexOld}"]`);
+      if (!rowEl) return; // 找不到元素
+
+      rowEl.classList.add('updating');
+      setTimeout(() => {
+        rowEl.classList.remove('updating');
+        updatedRows.value[indexOld] = Object.assign({}, oldActiveRow);
+      }, 500);
+    };
+
     const onClickOutside = () => {
       outsideHandler.removeListener();
       if (EditComp) {
-        setTimeout(() => {
-          EditComp.unmount(document.querySelector(`.${editCell.value} .edit-content`));
-          editCell.value = '';
-        }, 0);
+        const selector = getEditCellSelector(editCell.value);
+        const oldEditCell = document.querySelector(selector)! as HTMLElement;
+        EditComp.unmount(oldEditCell.querySelector(`.edit-content`));
+        editCell.value = '';
       }
+    };
+
+    const updateChangeRows = (value: any) => {
+      const [keyCode, index] = seperateKeycodeIndex(editCell.value);
+      changeRows.value[index] = Object.assign(
+        {}, 
+        changeRows.value[index] || props.dataSource[index], 
+        { [keyCode]: value }
+      );
     };
 
     const updateCell = (value: any) => {
       const selector = getEditCellSelector(editCell.value);
       const oldEditCell = document.querySelector(selector)! as HTMLElement;
       const oldShowContent = oldEditCell.querySelector(`.show-content`)!;
+      const [keyCode, index] = seperateKeycodeIndex(editCell.value);
       const valueType = oldEditCell.dataset['valueType'.toLowerCase()] as Table.ColumnItemType;
-      createApp({ render: () => renderStaticCell(h, value, valueType) }).mount(oldShowContent);
-    }
+      createApp({ 
+        render: () => renderStaticCell(
+          h, 
+          getRenderType(h, { // 自定义列渲染
+            columns: props.columns, 
+            dataItem: changeRows.value[index] || props.dataSource[index], 
+            key: keyCode
+          }), 
+          valueType
+        ) 
+      }).mount(oldShowContent);
+    };
 
     // 使用@change的话调用了两次
-    const onCellChange = (e: Event) => {
-      const value = (e.target as HTMLInputElement).value;
+    const onCellChange = (value: string | number) => {
       const [keyCode, index] = editCell.value.split('_');
 
-      // 手动更新：速度快
+      // 更新DOM
       updateCell(value);
-      // 修改数据 -> Vue更新：50行100列耗时：600多ms
-      // if (updateCell) updateCell(index, keyCode, value);
+      // 更新数据
+      updateChangeRows(value);
       
       const now = Date.now();
       nextTick(() => {
         console.log('单元格更新渲染时间：', Date.now() - now, 'ms');
-      })
+      });
     };
 
     // 行点击事件代理，不直接对每个cell绑定事件
@@ -145,7 +219,7 @@ export default defineComponent({
       const now = Date.now();
       nextTick(() => {
         console.log('单元格编辑渲染时间：', Date.now() - now, 'ms');
-      })
+      });
 
       const currentRow = e.currentTarget as HTMLElement;
       let columnRowCell = e.target! as HTMLElement; 
@@ -160,13 +234,19 @@ export default defineComponent({
       editCell.value = cellName;
 
       setRowActive(e.currentTarget as HTMLElement);
-      setEditContent({ value: getCellValue(props.dataSource, cellName), cellName, onClickOutside, setTableScroll, cb: (pos) => {
-        editCellStyle.width = pos.offsetWidth;
-        editCellStyle.height = pos.offsetHeight;
-        editCellStyle.top = pos.offsetTop;
-        editCellStyle.left = pos.offsetLeft;
-      }});
-    }
+      setEditContent({ 
+        value: getCellValue(changeRows.value, props.dataSource, cellName), 
+        cellName, 
+        onClickOutside, 
+        setTableScroll, 
+        cb: (pos) => {
+          editCellStyle.width = pos.offsetWidth;
+          editCellStyle.height = pos.offsetHeight;
+          editCellStyle.top = pos.offsetTop;
+          editCellStyle.left = pos.offsetLeft;
+        }
+      });
+    };
 
     // 单元格编辑
     const setEditContent = ({ value, cellName, onClickOutside, setTableScroll, cb }: {
@@ -204,6 +284,7 @@ export default defineComponent({
     };
     const tableRow = (index: number, children: any[]) => h('div', { 
       class: 'table__row', 
+      index,
       style: { top: `${index * cellHeight.value}px` }, 
       onClick: onRowClick 
     }, children);
@@ -220,12 +301,12 @@ export default defineComponent({
         h('div', { class: 'show-content' }, children),
         h('div', { class: 'edit-content' })
       ]);
-    }
+    };
 
-    const renderCell = (column: string[], dataItem: Table.ColumnsItem, index: number) => {
+    const renderCell = (column: string[], dataItem: Table.DataItem, index: number) => {
       return column.map((key) => tableCell({
         key,
-        index: index+1, 
+        index, 
         valueType: getValueType(props.columns, key), 
         children: [
           renderCellStyle(
@@ -233,10 +314,10 @@ export default defineComponent({
             getValueType(props.columns, key)
           ),
       ]}));
-    }
+    };
 
     return () => tableBody([
-      props.dataSource.map((dataItem: Table.ColumnsItem, index: number) =>
+      props.dataSource.map((dataItem: Table.DataItem, index: number) =>
         tableRow(index, [
           fixedLeft([
             tableIndex(index),

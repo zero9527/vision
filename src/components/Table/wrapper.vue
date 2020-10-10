@@ -63,8 +63,8 @@ export default defineComponent({
         { label: '时间', keyCode: 'time', valueType: 'DATE', width: 150 },
         { label: '学号', keyCode: 'sid', valueType: 'NUMBER' },
         { label: '爱好', keyCode: 'like', valueType: 'TEXT', width: 160 },
-        { label: '身高', keyCode: 'height', valueType: 'TEXT' },
-        { label: '体重', keyCode: 'weight', valueType: 'TEXT' },
+        { label: '身高', keyCode: 'height', valueType: 'TEXT', render: (h, item) => h('span', item.height + 'cm') },
+        { label: '体重', keyCode: 'weight', valueType: 'TEXT', render: (h, item) => h('span', item.weight + 'kg') },
         { label: '手机号', keyCode: 'phone', valueType: 'NUMBER', width: 140 },
       ];
       const addColumns: Table.ColumnsItem[] = new Array(90).fill('').map((item, index) => ({
@@ -86,8 +86,8 @@ export default defineComponent({
           time: time.join('-'),
           sid: i + 1,
           like: '运动、篮球、爬山',
-          height: '170cm',
-          weight: '60kg',
+          height: '170',
+          weight: '60',
           phone: 13000000000
         });
       }
