@@ -66,7 +66,7 @@ export default defineComponent({
         { label: '地址', keyCode: 'address', valueType: 'ADDRESS', width: 200 },
         { label: '手机号', keyCode: 'phone', valueType: 'NUMBER', width: 140 },
       ];
-      const addColumns: Table.ColumnsItem[] = new Array(90).fill('').map((item, index) => ({
+      const addColumns: Table.ColumnsItem[] = new Array(10).fill('').map((item, index) => ({
         label: 'column'+index,
         keyCode: 'key'+index,
         valueType: 'TEXT'
@@ -116,7 +116,7 @@ export default defineComponent({
     };
 
     const updateCell = (index: number, keyCode: string, value: any) => {
-      dataSource.value[index-1][keyCode] = value;
+      // dataSource.value[index-1][keyCode] = value;
     };
 
     const onActiveChange = (active: string) => {

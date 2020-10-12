@@ -1,5 +1,5 @@
 <script lang="ts">
-import { App, compile, computed, createApp, createBlock, createRenderer, createStaticVNode, DefineComponent, defineComponent, h, inject, nextTick, onMounted, onUnmounted, PropType, reactive, Ref, ref, unref, watch } from 'vue';
+import { App, computed, createApp, DefineComponent, defineComponent, h, inject, nextTick, onMounted, onUnmounted, PropType, reactive, ref, watch } from 'vue';
 import { fixedLeft, getCellValue, getCellWidth, getRenderType, getValueType, renderStaticCell, seperateKeycodeIndex } from '../utils';
 import NumberComp from '/@/components/Tools/Number.vue';
 import SelectComp from '/@/components/Tools/Select.vue';
@@ -12,7 +12,7 @@ import { Table } from '../types.d';
 
 interface TalbeCellProps {
   key: string;
-  index: number
+  index: number;
   children: any[];
   valueType?: Table.ColumnItemType;
 }
@@ -87,6 +87,9 @@ export default defineComponent({
     const setTableScroll: Function = inject('setTableScroll') || console.log;
 
     onMounted(() => {
+      nextTick(() => {
+        renderRowFrame();
+      });
       window.addEventListener('keydown', onTabClick);
     });
  
@@ -125,6 +128,26 @@ export default defineComponent({
         }
       }
     });
+
+    // 逐行渲染，列数多的时候会有明显的空白感，可以进一步压缩，手动渲染部分单元格（可视区域一定范围内）
+    const renderRowFrame = async (index: number = 0) => {
+      console.log(index);
+      const rowEl = document.querySelector(`.table__row[index="${index}"]`);
+      const dataItem = props.dataSource[index];
+      if (!rowEl || !dataItem) return;
+
+      await createApp({
+        render: () => [
+          fixedLeft([
+            tableIndex(index),
+            renderCell(columnsFixed.value, dataItem, index),
+          ]), 
+          renderCell(columnsNormal.value, dataItem, index)
+        ]
+      }).mount(rowEl);
+
+      setTimeout(() => renderRowFrame(index + 1), 0);
+    }
 
     // 编辑一个单元格的时候，点击tab，切换到编辑同一行下一个单元格
     const onTabClick = (e: KeyboardEvent) => {
@@ -321,13 +344,17 @@ export default defineComponent({
 
     return () => tableBody([
       props.dataSource.map((dataItem: Table.DataItem, index: number) =>
-        tableRow(index, [
-          fixedLeft([
-            tableIndex(index),
-            renderCell(columnsFixed.value, dataItem, index),
-          ]),
-          renderCell(columnsNormal.value, dataItem, index),
-        ]),
+        tableRow(
+          index, 
+          [], // 改为手动逐行渲染
+          // [
+          //   fixedLeft([
+          //     tableIndex(index),
+          //     renderCell(columnsFixed.value, dataItem, index),
+          //   ]),
+          //   renderCell(columnsNormal.value, dataItem, index),
+          // ]
+        ),
       ),
       tableRow(props.dataSource.length, [ h(AddRow) ])
     ]);

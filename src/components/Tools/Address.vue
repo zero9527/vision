@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, toRaw, unref, watchEffect } from 'vue';
+import { defineComponent, PropType, ref, toRaw, unref, watchEffect } from 'vue';
 import { Cascader } from 'ant-design-vue';
 import { usePropsValue } from '/@/hooks';
 
@@ -59,7 +59,7 @@ export default defineComponent({
   },
   props: {
     value: {
-      type: String,
+      type: Array as PropType<string[]>,
       default: ''
     }
   },
