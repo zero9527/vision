@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watchEffect } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { InputEvent } from '../Table/types';
 
 export default defineComponent({
@@ -24,10 +24,6 @@ export default defineComponent({
   setup(props, ctx) {
     const inputRef = ref<HTMLInputElement | null>(null);
     const inputValue = ref(props.value);
-
-    watchEffect(() => {
-      console.log(inputValue.value)
-    })
 
     const transform = (value: string) => {
       return value.replace(/\D/g, '').substr(0, 11);

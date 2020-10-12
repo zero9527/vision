@@ -54,20 +54,31 @@ export function renderStaticCell(h: any, value: any, valueType: Table.ColumnItem
 
   // 日期
   if (valueType === 'DATE') {
-    return h('span', { 
-      style: { fontFamily: 'monospace', fontSize: '14px' }
-    }, value);
+    return h('span', value);
   }
 
-  // 单选
+  // 选择
   if (valueType === 'SELECT') {
-    return h('span', {
-      style: { backgroundColor: 'sandybrown' }
-    }, value)
+    return h('span', value.map((label: string) => h('span', { 
+      style: { 
+        marginRight: '4px', 
+        padding: '2px',
+        borderRadius: '4px',
+        backgroundColor: 'sandybrown' 
+      }
+     }, label)
+    ))
+  }
+
+  // 地址
+  if (valueType === 'ADDRESS') {
+    return h('span', value.map((label: string, index: number) => h('span', [
+      label, index !== value.length - 1 ? ',' : ''
+    ])))
   }
 
   // 默认直接显示
-  return h('span', value);
+  return h('span', null, value);
 }
 
 // 分割 keyCode, index

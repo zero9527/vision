@@ -2,8 +2,10 @@
 import { App, compile, computed, createApp, createBlock, createRenderer, createStaticVNode, DefineComponent, defineComponent, h, inject, nextTick, onMounted, onUnmounted, PropType, reactive, Ref, ref, unref, watch } from 'vue';
 import { fixedLeft, getCellValue, getCellWidth, getRenderType, getValueType, renderStaticCell, seperateKeycodeIndex } from '../utils';
 import NumberComp from '/@/components/Tools/Number.vue';
+import SelectComp from '/@/components/Tools/Select.vue';
 import TextComp from '/@/components/Tools/Text.vue';
 import DateComp from '/@/components/Tools/Date.vue';
+import AddressComp from '/@/components/Tools/Address.vue';
 import AddRow from '/@/components/Tools/AddRow.vue';
 import { useClickOutside, UseClickOutsideReturns } from '/@/hooks';
 import { Table } from '../types.d';
@@ -14,6 +16,14 @@ interface TalbeCellProps {
   children: any[];
   valueType?: Table.ColumnItemType;
 }
+
+const compMap: Record<Table.ColumnItemType, DefineComponent> = { 
+  TEXT: TextComp, 
+  NUMBER: NumberComp, 
+  DATE: DateComp, 
+  SELECT: SelectComp,
+  ADDRESS: AddressComp
+};
 
 let EditComp: App;
 
@@ -75,13 +85,13 @@ export default defineComponent({
     const editCell = ref('');
     const editCellStyle = reactive({ width: 0, height: 0, top: 0, left: 0 });
     const setTableScroll: Function = inject('setTableScroll') || console.log;
- 
-    onMounted(() => {
-      window.addEventListener('keyup', onTabClick);
-    })
 
+    onMounted(() => {
+      window.addEventListener('keydown', onTabClick);
+    });
+ 
     onUnmounted(() => {
-      window.removeEventListener('keyup', onTabClick);
+      window.removeEventListener('keydown', onTabClick);
       if (!editCell.value) return;
       const selector = getEditCellSelector(editCell.value);
       let oldEditCell = document.querySelector(selector) as Element;
@@ -105,10 +115,6 @@ export default defineComponent({
       col => !props.columns.find(i => col === i.keyCode)!.fixed)
     );
 
-    watch(() => updatedRows.value, (val) => {
-      console.log(unref(val))
-    }, { deep: true })
-
     watch(() => editCell.value, (value, oldValue) => {
       if (oldValue) {
         updateRow(value, oldValue);
@@ -125,9 +131,8 @@ export default defineComponent({
       if (!editCell.value) return;
       if (e.keyCode === 9) {
         const currentEditCell = document.querySelector('.table__cell.edit')!;
-        if (currentEditCell?.nextElementSibling) {
-          (currentEditCell.nextElementSibling as HTMLElement).click();
-        }
+        const nextEditCell = currentEditCell.nextElementSibling as HTMLElement;
+        if (nextEditCell) nextEditCell.click();
       }
     }
 
@@ -139,11 +144,6 @@ export default defineComponent({
       const oldActiveRow = changeRows.value[indexOld];
       if (!oldActiveRow) return; // 第一一次编辑
       
-      const oldActiveRowChanged = Object.keys(oldActiveRow)
-        .some(key => oldActiveRow[key] !== props.dataSource[indexOld][key]);
-      if (!oldActiveRowChanged) return; // 没有修改
-
-      // TODO: 第一次没问题，再次编辑回原来的数据 -- 不会 updating
       if (updatedRows.value[indexOld]) {
         const hasChange = Object.keys(updatedRows.value[indexOld])
           .some(key => oldActiveRow[key] !== updatedRows.value[indexOld][key]);
@@ -200,6 +200,7 @@ export default defineComponent({
 
     // 使用@change的话调用了两次
     const onCellChange = (value: string | number) => {
+      console.log(value)
       const [keyCode, index] = editCell.value.split('_');
 
       // 更新DOM
@@ -274,14 +275,16 @@ export default defineComponent({
       let cellEditContent: Element | null = cellElement.querySelector('.edit-content');
       if (EditComp) EditComp.unmount(cellEditContent);
       const type = cellElement!.dataset['valueType'.toLowerCase()] as Table.ColumnItemType;
-      const compMap = { TEXT: TextComp, NUMBER: NumberComp, DATE: DateComp };
       EditComp = createApp(compMap[type], { 
-        style: { height: cellHeight.value+'px' }, value, onValueChange: onCellChange 
+        // style: { minHeight: cellHeight.value+'px' }, 
+        value, 
+        onValueChange: onCellChange 
       });
       EditComp.mount(cellEditContent);
       // console.log(EditComp);
       cellEditContent = null;
     };
+    
     const tableRow = (index: number, children: any[]) => h('div', { 
       class: 'table__row', 
       index,

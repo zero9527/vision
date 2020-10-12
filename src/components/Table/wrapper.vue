@@ -62,9 +62,8 @@ export default defineComponent({
         { label: '姓名', keyCode: 'name', valueType: 'TEXT' },
         { label: '时间', keyCode: 'time', valueType: 'DATE', width: 150 },
         { label: '学号', keyCode: 'sid', valueType: 'NUMBER' },
-        { label: '爱好', keyCode: 'like', valueType: 'TEXT', width: 160 },
-        { label: '身高', keyCode: 'height', valueType: 'TEXT', render: (h, item) => h('span', item.height + 'cm') },
-        { label: '体重', keyCode: 'weight', valueType: 'TEXT', render: (h, item) => h('span', item.weight + 'kg') },
+        { label: '爱好', keyCode: 'like', valueType: 'SELECT', width: 160 },
+        { label: '地址', keyCode: 'address', valueType: 'ADDRESS', width: 200 },
         { label: '手机号', keyCode: 'phone', valueType: 'NUMBER', width: 140 },
       ];
       const addColumns: Table.ColumnsItem[] = new Array(90).fill('').map((item, index) => ({
@@ -79,15 +78,14 @@ export default defineComponent({
     const loadMore = () => {
       const list = [];
       for (let i = startIndex.value; i < startIndex.value + 50; i++) {
-        const time = new Date().toLocaleDateString().split('/').map(i => i.padStart(2, '0'));
+        const time = new Date('2020-10-11').toLocaleDateString().split('/').map(i => i.padStart(2, '0'));
         list.push({
           id: i + 1,
           name: `小明-${i + 1}`,
           time: time.join('-'),
           sid: i + 1,
-          like: '运动、篮球、爬山',
-          height: '170',
-          weight: '60',
+          like: ['跑步', '篮球', '爬山'],
+          address: ['广东省','广州市','白云区'],
           phone: 13000000000
         });
       }

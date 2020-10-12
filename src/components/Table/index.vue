@@ -58,10 +58,10 @@ export default defineComponent({
     provide('addColumn', addColumn);
     provide('addRow', addRow);
 
-    const updateCell = (index: number, keyCode: string, value: any) => {
-      ctx.emit('updateCell', index, keyCode, value);
-    };
-    provide('updateCell', updateCell);
+    // const updateCell = (index: number, keyCode: string, value: any) => {
+    //   ctx.emit('updateCell', index, keyCode, value);
+    // };
+    // provide('updateCell', updateCell);
 
     const setTableScroll = (rect: DOMRect) => {
       const OFFSET_TOP = 100;

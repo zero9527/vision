@@ -1,8 +1,12 @@
 import { VNode } from 'vue';
 import { CreateElement } from 'vue/types/umd';
 
-interface InputEvent extends Event {
+export interface InputEvent extends Event {
   target: HTMLInputElement;
+}
+
+export interface SelectEvent extends Event {
+  target: HTMLSelectElement;
 }
 
 export declare namespace Table {

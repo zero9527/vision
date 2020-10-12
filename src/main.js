@@ -1,7 +1,11 @@
 import { createApp } from 'vue';
+// 可以用 babel-plugin-import 在引入组件的时候自动引入样式，这里就可以去掉
+import 'ant-design-vue/dist/antd.css';
 import App from './App.vue';
 
-// Vue.config.productionTip = false;
-// Vue.prototype.devtools = process.env.NODE_ENV === 'development';
+const app = createApp(App);
+// app.config.productionTip = false;
+// app.config.globalProperties
 
-createApp(App).mount('#app');
+
+app.mount('#app');

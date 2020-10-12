@@ -1,23 +1,37 @@
 <template>
-  <input class="date" type="date" :value="value" @change="onChange" />
+  <a-date-picker 
+    v-model:value="selectValue" 
+    :getCalendarContainer="triggerNode => triggerNode.parentNode"
+    @change="onChange"
+  />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { DatePicker } from 'ant-design-vue';
+import moment from 'moment';
+import { usePropsValue } from '/@/hooks';
 
 export default defineComponent({
   name: 'Date',
+  components: {
+    ADatePicker: DatePicker
+  },
   props: {
     value: {
       type: String
     }
   },
   setup(props, ctx) {
-    const onChange = (e: any) => {
-      ctx.emit('valueChange', e.target.value);
+    const selectValue = usePropsValue(moment(props.value));
+
+    const onChange = (date: any, dateString: string) => {
+      // console.log(date, dateString)
+      ctx.emit('valueChange', dateString);
     }
 
     return {
+      selectValue,
       onChange
     }
   }
