@@ -1,5 +1,5 @@
 import { CreateElement } from 'vue/types/umd';
-import { h } from 'vue';
+import { h, VNode } from 'vue';
 import { Table } from '../types.d';
 
 // 固定列
@@ -23,14 +23,14 @@ export function getCellWidth(columns: Table.ColumnsItem[], key: string) {
 interface RenderTypeProps {
   columns: Table.ColumnsItem[];
   dataItem: any;
-  key: string;
+  keyCode: string;
 }
 // 渲染label或执行render方法
 export function getRenderType(
   h: CreateElement,
-  { columns, dataItem, key }: RenderTypeProps,
+  { columns, dataItem, keyCode }: RenderTypeProps,
 ) {
-  const columnItem = getColumnByKeyCode(columns, key);
+  const columnItem = getColumnByKeyCode(columns, keyCode);
   if (!columnItem) return null;
   return columnItem?.render
     ? columnItem.render(h, dataItem)
@@ -44,7 +44,7 @@ export function getValueType(columns: Table.ColumnsItem[], keyCode: string) {
 }
 
 // 单元格 静态显示
-export function renderStaticCell(h: any, value: any, valueType: Table.ColumnItemType) {
+export function renderStaticCell(h: any, value: any, valueType: Table.ColumnItemType): VNode {
   // 数字
   if (valueType === 'NUMBER') {
     return h('span', { 
@@ -60,27 +60,47 @@ export function renderStaticCell(h: any, value: any, valueType: Table.ColumnItem
   // 选择
   if (valueType === 'SELECT') {
     return h('span', value.map((label: string) => h('span', { 
-      style: { 
-        marginRight: '4px', 
-        padding: '2px',
-        borderRadius: '4px',
-        backgroundColor: 'sandybrown' 
-      }
-     }, label)
-    ))
+      class: 'table__cell-select-item'
+     }, label)));
   }
 
   // 地址
   if (valueType === 'ADDRESS') {
-    return h('span', value.map((label: string, index: number) => h('span', [
-      label, index !== value.length - 1 ? ',' : ''
-    ])))
+    return h('span', value.join(' / '));
   }
 
   // 默认直接显示
   return h('span', null, value);
 }
 
+// 设置行active
+export function setRowActive(currentTarget: HTMLElement) {
+  // 点击当前行
+  if (currentTarget.classList.contains('active')) return;
+  let oldActiveRow = document.querySelector('.table__row.active');
+  if (oldActiveRow) {
+    oldActiveRow.classList.remove('active');
+    oldActiveRow = null;
+  }
+  currentTarget.classList.add('active');
+};
+
+// 获取单元格的cell名称
+export function getCellName(e: MouseEvent) {
+  let currentRow: HTMLElement | null = e.currentTarget as HTMLElement;
+  let columnRowCell: HTMLElement | null = e.target! as HTMLElement;
+  while (
+    currentRow.contains(columnRowCell) && 
+    !columnRowCell!.dataset.cell
+  ) {
+    columnRowCell = columnRowCell?.parentNode as HTMLElement;
+  }
+  const cellName = columnRowCell!.dataset.cell!;
+  currentRow = null;
+  columnRowCell = null;
+  return cellName;
+}
+    
 // 分割 keyCode, index
 export function seperateKeycodeIndex(cellName: string): [string, number] {
   const [keyCode, index] = cellName.split('_') as [string, number];
@@ -92,5 +112,17 @@ export function getCellValue(changeRows: any, dataSource: any[], cellName: strin
   const [keyCode, index] = cellName.split('_') as [string, number];
   // 优先使用修改的数据
   if (changeRows[index]) return changeRows[index][keyCode];
-  return dataSource[index][keyCode];
+  return dataSource[index][keyCode]; 
+}
+
+// 获取当前编辑的cell css选择器
+export function getEditCellSelector(cell: string) {
+  return `.table__cell[data-cell="${cell}"]`;
+}
+
+// 获取当前编辑的cell元素
+export function getCellElment(cell: string) {
+  const selector = getEditCellSelector(cell);
+  const cellElement = document.querySelector(selector)! as HTMLElement;
+  return cellElement;
 }

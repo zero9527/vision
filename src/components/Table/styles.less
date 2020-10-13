@@ -108,7 +108,19 @@
     }
 
     .show-content {
-      word-break: break-all;
+      max-height: 100%;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    &-select-item {
+      display: inline-block;
+      margin-right: 4px;
+      margin-bottom: 4px;
+      padding: 2px;
+      border-radius: 4px;
+      background-color: sandybrown;
     }
   }
 

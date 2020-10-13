@@ -53,7 +53,7 @@ const address = [
 ];
 
 export default defineComponent({
-  name: 'address',
+  name: 'Address',
   components: {
     ACascader: Cascader,
   },

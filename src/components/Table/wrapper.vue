@@ -84,8 +84,8 @@ export default defineComponent({
           name: `小明-${i + 1}`,
           time: time.join('-'),
           sid: i + 1,
-          like: ['跑步', '篮球', '爬山'],
-          address: ['广东省','广州市','白云区'],
+          like: ['跑步', '篮球', '羽毛球', '足球', '爬山', '街舞', '单车', '跳伞'],
+          address: ['广东省', '广州市', '白云区'],
           phone: 13000000000
         });
       }
