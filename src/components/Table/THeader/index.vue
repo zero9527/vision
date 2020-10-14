@@ -4,7 +4,7 @@ import AddColumn from '../../Tools/AddColumn.vue';
 import { fixedLeft } from '../utils';
 import { Table } from '../types.d';
 
-const edit = (props: object) => h('span', props, '🖊');
+const edit = (props: object) => h('span', props, '🎈');
 
 const getCellWidth = (width?: number) => width ? `${width}px` : undefined;
 
