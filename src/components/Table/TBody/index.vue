@@ -1,9 +1,8 @@
 <script lang="ts">
-import { App, createApp, DefineComponent, defineComponent, h, inject, nextTick, onMounted, onUnmounted, PropType, reactive, ref, watch } from 'vue';
-import CellRenderManager, { CellRenderManagerProps } from './CellRenderManager';
-import CellEditManager, { CellEditManagerProps } from './CellEditManager';
+import { defineComponent, h, inject, nextTick, onMounted, onUnmounted, PropType, reactive, ref, watch } from 'vue';
+import CellRenderManager from './manager/CellRenderManager';
+import CellEditManager from './manager/CellEditManager';
 import { getCellName, getEditCellSelector, setRowActive } from '../utils';
-import { useClickOutside, UseClickOutsideReturns } from '/@/hooks';
 import AddRow from '/@/components/Tools/AddRow.vue';
 import { Table } from '../types.d';
 
@@ -33,9 +32,7 @@ export default defineComponent({
  
     onUnmounted(() => {
       window.removeEventListener('keydown', onTabClick);
-      if (cellEditManager.value) {
-        cellEditManager.value.destroyEditCell(editCell.value);
-      }
+      cellEditManager.value?.destroyEditCell(editCell.value);
     });
 
     watch(() => [cellHeight.value, props.columns, props.dataSource], () => {
@@ -55,9 +52,7 @@ export default defineComponent({
 
     watch(() => editCell.value, (value, oldValue) => {
       if (oldValue) {
-        if (cellEditManager.value) {
-          cellEditManager.value.updateRowData(value, oldValue);
-        }
+        cellEditManager.value?.updateRowData(value, oldValue);
         const selector = getEditCellSelector(oldValue);
         let oldEditCell = document.querySelector(selector) as Element;
         if (oldEditCell) {
@@ -72,19 +67,15 @@ export default defineComponent({
       if (e.keyCode === 9 || e.key === 'Tab') {
         const currentEditCell = document.querySelector('.table__cell.edit')!;
         const nextEditCell = currentEditCell.nextElementSibling as HTMLElement;
-        if (nextEditCell) {
-          nextEditCell.click();
-        }
+        if (nextEditCell) nextEditCell.click();
       }
     }
 
-    // TODO：点击tab键时， editCell为空了
     // 行点击事件代理，不直接对每个cell绑定事件
     const onRowClick = (e: MouseEvent) => {
-      e.preventDefault();
       e.stopPropagation();
-
       setRowActive(e.currentTarget as HTMLElement);
+      
       const currentCell = getCellName(e);
       if (!currentCell || currentCell === 'index' || editCell.value === currentCell) return;
       editCell.value = currentCell;

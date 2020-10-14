@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted, reactive, toRefs } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 /**
  * composition-api 自定义Hook
@@ -17,19 +17,23 @@ import { onMounted, onUnmounted, reactive, toRefs } from 'vue';
     });
  */
 export function useScroll(selector?: string) {
-  const pos = reactive({ x: 0, y: 0 });
+  const trigger = ref<HTMLElement | undefined>();
+  const x = ref(0);
+  const y = ref(0);
 
   const onScroll = (e: Event) => {
     e.preventDefault();
-    const el = selector && document.querySelector(selector);
-    if (el) {
-      pos.x = parseInt(`${el.scrollLeft}`);
-      pos.y = parseInt(`${el.scrollTop}`);
+    let el: HTMLElement | null = selector ? document.querySelector(selector) : null;
+    if (el) trigger.value = el;
+    el = null;
+    if (trigger.value) {
+      x.value = parseInt(`${trigger.value.scrollLeft}`);
+      y.value = parseInt(`${trigger.value.scrollTop}`);
     } else {
-      pos.x = parseInt(
+      x.value = parseInt(
         `${document.body.scrollLeft || document.documentElement.scrollLeft}`,
       );
-      pos.y = parseInt(
+      y.value = parseInt(
         `${document.body.scrollTop || document.documentElement.scrollTop}`,
       );
     }
@@ -43,5 +47,9 @@ export function useScroll(selector?: string) {
     window.removeEventListener('scroll', onScroll, true);
   });
 
-  return toRefs(pos);
+  return {
+    trigger,
+    x,
+    y,
+  };
 };

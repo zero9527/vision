@@ -44,18 +44,16 @@ export default defineComponent({
     const dataSource = ref<DataSourceItem[]>([]);
     const activeTable = ref('班级表');
 
-    const { y } = useScroll();
+    const { y, x, trigger } = useScroll('.table');
 
-    // watch(
-    //   () => y.value,
-    //   () => {
-    //     const { innerHeight } = window;
-    //     const { scrollHeight } = document.documentElement;
-    //     if (scrollHeight - innerHeight - y.value < 200) {
-    //       loadMore();
-    //     }
-    //   },
-    // );
+    watch(() => x.value, (value) => {
+      const clientWidth = trigger.value?.clientWidth;
+      if (clientWidth) {
+        if (clientWidth - x.value <= 100) {
+          console.log('renderCell')
+        }
+      }
+    })
 
     onMounted(() => {
       const baseColumns: Table.ColumnsItem[] = [

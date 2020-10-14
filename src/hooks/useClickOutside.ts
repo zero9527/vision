@@ -14,6 +14,11 @@ export type UseClickOutsideReturns = {
       addListener, 
       removeListener 
     } = useClickOutside('.popover__dialog', onClickOutside);
+    
+    @example
+    if (this.outsideHandler) this.outsideHandler.removeListener();
+    this.outsideHandler = useClickOutside(cellElement, this.onClickOutside);
+    this.outsideHandler.addListener();
  */
 export function useClickOutside(target: Element | string, cb: Function): UseClickOutsideReturns {
   let isReady = false;

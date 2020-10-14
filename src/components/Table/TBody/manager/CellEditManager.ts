@@ -1,14 +1,14 @@
-import { App, createApp, DefineComponent, h, render } from 'vue';
-import { getCellElment, getCellValue, getRenderType, renderStaticCell, seperateKeycodeIndex } from '../utils';
+import { App, createApp, DefineComponent, h } from 'vue';
+import { getCellElment, getCellValue, getRenderType, renderStaticCell, seperateKeycodeIndex } from '../../utils';
 import { useClickOutside, UseClickOutsideReturns } from '/@/hooks';
 import NumberComp from '/@/components/Tools/Number.vue';
 import SelectComp from '/@/components/Tools/Select.vue';
 import TextComp from '/@/components/Tools/Text.vue';
 import DateComp from '/@/components/Tools/Date.vue';
 import AddressComp from '/@/components/Tools/Address.vue';
-import { Table } from '../types';
+import { Table } from '../../types';
 
-export interface CellEditManagerProps {
+interface CellEditManagerProps {
   columns: Table.ColumnsItem[];
   dataSource: any[];
   clearEditCell: () => void;
@@ -44,6 +44,8 @@ export default class CellEditManager {
 
   private outsideHandler: UseClickOutsideReturns | null = null;
 
+  private editCell_old: string = '';
+
   // 当前编辑单元格 data-cell
   private editCell: string = '';
 
@@ -56,6 +58,17 @@ export default class CellEditManager {
   constructor(props: CellEditManagerProps) {
     this.props = props;
   }
+
+  // 更新的时候，优先使用 editCell_old
+  private get getEditCell() {
+    return this.editCell_old || this.editCell;
+  }
+
+  // 修改 editCell，同时更新 editCell_old
+  private updateCellValue = (value: string) => {
+    this.editCell_old = this.editCell;
+    this.editCell = value;
+  }
   
   // 点击外部
   private onClickOutside = () => {
@@ -66,8 +79,6 @@ export default class CellEditManager {
   
   // 编辑的组件回调函数，使用@change的话调用了两次
   private onCellValueChange = (value: string | number) => {
-    debugger
-    // TODO：点击tab键时， editCell为空了
     // 更新数据
     this.updateChangeRows(value);
     // 更新DOM
@@ -76,7 +87,8 @@ export default class CellEditManager {
 
   // 更新修改的行数据
   private updateChangeRows = (value: any) => {
-    const [keyCode, index] = seperateKeycodeIndex(this.editCell);
+    if (!this.getEditCell) return;
+    const [keyCode, index] = seperateKeycodeIndex(this.getEditCell);
     this.changeRows[index] = Object.assign(
       {}, 
       this.changeRows[index] || this.props.dataSource[index], 
@@ -86,10 +98,10 @@ export default class CellEditManager {
 
   // 更新单元格
   public updateCellEl = () => {
-    if (!this.editCell) return;
-    const oldEditCell = getCellElment(this.editCell);
+    if (!this.getEditCell) return;
+    const oldEditCell = getCellElment(this.getEditCell);
     const oldShowContent = oldEditCell.querySelector(`.show-content`)!;
-    const [keyCode, index] = seperateKeycodeIndex(this.editCell);
+    const [keyCode, index] = seperateKeycodeIndex(this.getEditCell);
     const valueType = oldEditCell.dataset['valueType'.toLowerCase()] as Table.ColumnItemType;
     createApp({
       render: () => renderStaticCell(h, getRenderType(h, { // 自定义列渲染
@@ -118,6 +130,7 @@ export default class CellEditManager {
     if (!rowEl) return; // 找不到元素
 
     rowEl.classList.add('updating');
+    console.log(this.changeRows[indexOld]);
     setTimeout(() => {
       rowEl.classList.remove('updating');
       this.updatedRows[indexOld] = Object.assign({}, oldActiveRow);
@@ -131,10 +144,10 @@ export default class CellEditManager {
     cb: (data: CBdata) => void
   }) => {
     this.destroyEditCell(this.editCell);
+    this.updateCellValue(currentCell);
 
-    this.editCell = currentCell;
     const value = getCellValue(this.changeRows, this.props.dataSource, currentCell);
-    const cellElement = getCellElment(this.editCell);
+    const cellElement = getCellElment(currentCell);
     cellElement.classList.add('edit');
     
     if (this.outsideHandler) this.outsideHandler.removeListener();
@@ -164,7 +177,7 @@ export default class CellEditManager {
    */
   public destroyEditCell = (cell: string) => {
     if (!cell) return;
-    this.editCell = '';
+    this.updateCellValue('');
     if (EditComp) EditComp.unmount(EditComp._container);
   }
 }

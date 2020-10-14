@@ -66,7 +66,7 @@ export default defineComponent({
     const setTableScroll = (rect: DOMRect) => {
       const OFFSET_TOP = 100;
       const OFFSET_BOTTOM = 50;
-      const OFFSET_LEFT = document.querySelector('.fixed-column')!.clientWidth;
+      const OFFSET_LEFT = document.querySelector('.fixed-column')!.clientWidth + 10;
       const { offsetWidth, offsetHeight, scrollTop, scrollLeft } = tableRef.value!;
       if (rect.bottom >= offsetHeight + OFFSET_BOTTOM) {
         tableRef.value!.scrollTop = scrollTop + (rect.bottom - offsetHeight);
