@@ -2,9 +2,9 @@
   <a-select
     mode="multiple"
     v-model:value="selectValue"
-    style="width: 100%;"
+    style="width: 100%"
     placeholder="Please select"
-    :getPopupContainer="triggerNode => triggerNode.parentNode"
+    :getPopupContainer="(triggerNode) => triggerNode.parentNode"
     @change="onChange"
   >
     <a-select-option v-for="name in selectList" :key="name">
@@ -23,30 +23,39 @@ export default defineComponent({
   name: 'Select',
   components: {
     ASelect: Select,
-    ASelectOption: Select.Option
+    ASelectOption: Select.Option,
   },
   props: {
     value: {
       type: Array as PropType<String[]>,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   setup(props, ctx) {
     const selectValue = usePropsValue(props.value);
 
-    const selectList = ref(['跑步', '篮球', '羽毛球', '足球', '爬山', '街舞', '单车', '跳伞']);
+    const selectList = ref([
+      '跑步',
+      '篮球',
+      '羽毛球',
+      '足球',
+      '爬山',
+      '街舞',
+      '单车',
+      '跳伞',
+    ]);
 
     const onChange = (value: string) => {
       ctx.emit('valueChange', value);
-    }
+    };
 
     return {
       selectValue,
       selectList,
-      onChange
+      onChange,
     };
   },
-})
+});
 </script>
 
 <style lang="less" scoped>

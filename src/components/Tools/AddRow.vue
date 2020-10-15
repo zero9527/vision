@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, inject, PropType} from 'vue';
+import { defineComponent, inject, PropType } from 'vue';
 import Add from './Add.vue';
 
 export default defineComponent({
@@ -24,12 +24,12 @@ export default defineComponent({
     const addRow = (item: any) => {
       if (onAddRow) onAddRow(item);
     };
-    
+
     return {
-      addRow
-    }
-  }
-})
+      addRow,
+    };
+  },
+});
 </script>
 
 <style lang="less" scoped>

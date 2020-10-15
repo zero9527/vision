@@ -2,17 +2,15 @@
   <pop-over ref="popoverRef">
     <Add className="table__cell" />
     <template v-slot:popover>
-      <p>
-        名称：<input type="text" v-model="data.label">
-      </p>
+      <p>名称：<input type="text" v-model="data.label" /></p>
       <div>
         类型：
         <select>
-          <option 
-            v-for="item in valueTypeList" 
-            :key="item.valueType" 
-            :value="item.valueType" 
-            :selected="defaultValueType === item.valueType" 
+          <option
+            v-for="item in valueTypeList"
+            :key="item.valueType"
+            :value="item.valueType"
+            :selected="defaultValueType === item.valueType"
             @click="onSelect(item.valueType)"
           >
             {{ item.label }}
@@ -27,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, reactive, ref} from 'vue';
+import { computed, defineComponent, PropType, reactive, ref } from 'vue';
 import { Table } from '../Table/types.d';
 import PopOver from './Popover.vue';
 import Add from './Add.vue';
@@ -48,8 +46,8 @@ export default defineComponent({
       type: String as PropType<Table.ColumnItemType>,
     },
     valueTypeList: {
-      type: Array as PropType<ItemType[]>
-    }
+      type: Array as PropType<ItemType[]>,
+    },
   },
   setup(props, ctx) {
     const popoverRef = ref<any>(null);
@@ -57,29 +55,29 @@ export default defineComponent({
 
     const fullfilled = computed(() => {
       return data.label && data.checkedValueType;
-    })
+    });
 
     const onSelect = (valueType: Table.ColumnItemType) => {
       data.checkedValueType = valueType;
-    }
+    };
 
     const onConfirm = () => {
-      ctx.emit('confirm', {...data});
+      ctx.emit('confirm', { ...data });
       popoverRef.value.closeDialog();
       data.label = '';
       data.checkedValueType = props.defaultValueType;
       popoverRef.value.onAddClick();
-    }
+    };
 
     return {
       popoverRef,
       data,
       fullfilled,
       onSelect,
-      onConfirm
-    }
-  }
-})
+      onConfirm,
+    };
+  },
+});
 </script>
 
 <style lang="less" scoped>

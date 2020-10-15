@@ -3,7 +3,7 @@
     v-model:value="selectValue"
     placeholder="Please select"
     :options="options"
-    :getPopupContainer="triggerNode => triggerNode.parentNode"
+    :getPopupContainer="(triggerNode) => triggerNode.parentNode"
     @change="onChange"
   />
 </template>
@@ -60,8 +60,8 @@ export default defineComponent({
   props: {
     value: {
       type: Array as PropType<string[]>,
-      default: ''
-    }
+      default: '',
+    },
   },
   setup(props, ctx) {
     const selectValue = usePropsValue(props.value);
@@ -69,13 +69,13 @@ export default defineComponent({
 
     const onChange = (value: string) => {
       ctx.emit('valueChange', value);
-    }
+    };
 
     return {
       selectValue,
       options,
-      onChange
-    }
-  }
-})
+      onChange,
+    };
+  },
+});
 </script>

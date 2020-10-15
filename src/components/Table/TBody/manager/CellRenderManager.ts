@@ -1,5 +1,11 @@
 import { createApp, h, render } from 'vue';
-import { fixedLeft, getCellWidth, getRenderType, getValueType, renderStaticCell } from '../../utils';
+import {
+  fixedLeft,
+  getCellWidth,
+  getRenderType,
+  getValueType,
+  renderStaticCell,
+} from '../../utils';
 import { Table } from '../../types';
 
 interface CellRenderManagerProps {
@@ -25,23 +31,23 @@ export default class CellRenderManager {
   constructor(props: CellRenderManagerProps) {
     this.props = props;
   }
-  
+
   // 获取需要渲染的列 keyCode
   get columnKeys() {
-    return this.props.columns.map((col: Table.ColumnsItem) => col.keyCode)
+    return this.props.columns.map((col: Table.ColumnsItem) => col.keyCode);
   }
 
   // 固定列
   get columnsFixed() {
     return this.columnKeys.filter(
-      col => this.props.columns.find(i => col === i.keyCode)!.fixed
+      (col) => this.props.columns.find((i) => col === i.keyCode)!.fixed,
     );
   }
 
   // 正常列
   get columnsNormal() {
     return this.columnKeys.filter(
-      col => !this.props.columns.find(i => col === i.keyCode)!.fixed
+      (col) => !this.props.columns.find((i) => col === i.keyCode)!.fixed,
     );
   }
 
@@ -53,7 +59,7 @@ export default class CellRenderManager {
    * 动态创建行 table__row
    * @param rowIndex 行序号
    * @param cssText 样式
-   * @param onRowClick 行点击 
+   * @param onRowClick 行点击
    */
   private createTableRowEl = (rowIndex: number, cssText: string) => {
     let tableBody: Element | null = document.querySelector('.table__body')!;
@@ -65,7 +71,7 @@ export default class CellRenderManager {
     tableBody.append(rowEl);
     tableBody = null;
     rowEl = null;
-  }
+  };
 
   /**
    * 逐行渲染，列数多的时候（100列）会有明显的空白感，
@@ -87,13 +93,13 @@ export default class CellRenderManager {
         fixedLeft([
           this.tableIndex(rowIndex),
           this.renderCell(this.columnsFixed, dataItem, rowIndex),
-        ]), 
-        this.renderCell(this.columnsShowFirst, dataItem, rowIndex)
-      ]
+        ]),
+        this.renderCell(this.columnsShowFirst, dataItem, rowIndex),
+      ],
     }).mount(rowEl);
 
     setTimeout(() => this.renderRowFrame(rowIndex + 1), 0);
-  }
+  };
 
   /**
    * TODO
@@ -110,47 +116,70 @@ export default class CellRenderManager {
     if (!rowEl) return;
 
     const { keyCode } = this.props.columns[columnIndex];
-    render(this.cellWrapper({ 
-      keyCode, rowIndex,
-      valueType: getValueType(this.props.columns, keyCode), 
-      children: [renderStaticCell(
-        h,
-        getRenderType(h, { columns: this.props.columns, dataItem, keyCode }),
-        getValueType(this.props.columns, keyCode) as Table.ColumnItemType
-      )]
-    }), rowEl);
+    render(
+      this.cellWrapper({
+        keyCode,
+        rowIndex,
+        valueType: getValueType(this.props.columns, keyCode),
+        children: [
+          renderStaticCell(
+            h,
+            getRenderType(h, { columns: this.props.columns, dataItem, keyCode }),
+            getValueType(this.props.columns, keyCode) as Table.ColumnItemType,
+          ),
+        ],
+      }),
+      rowEl,
+    );
   };
 
   // 渲染单元格
-  private renderCell = (columns: string[], dataItem: Table.DataItem, rowIndex: number) => {
-    return columns.map((keyCode) => this.cellWrapper({
-      keyCode,
-      rowIndex, 
-      valueType: getValueType(this.props.columns, keyCode), 
-      children: [renderStaticCell(
-        h,
-        getRenderType(h, { columns: this.props.columns, dataItem, keyCode }),
-        getValueType(this.props.columns, keyCode) as Table.ColumnItemType
-      )]
-    }));
+  private renderCell = (
+    columns: string[],
+    dataItem: Table.DataItem,
+    rowIndex: number,
+  ) => {
+    return columns.map((keyCode) =>
+      this.cellWrapper({
+        keyCode,
+        rowIndex,
+        valueType: getValueType(this.props.columns, keyCode),
+        children: [
+          renderStaticCell(
+            h,
+            getRenderType(h, { columns: this.props.columns, dataItem, keyCode }),
+            getValueType(this.props.columns, keyCode) as Table.ColumnItemType,
+          ),
+        ],
+      }),
+    );
   };
-  
+
   private cellWrapper = ({ valueType, keyCode, rowIndex, children }: TalbeCellProps) => {
     const cell = `${keyCode}_${rowIndex}`;
     const width = getCellWidth(this.props.columns, keyCode);
-    return h('div', {
-      'data-valueType': valueType,
-      'data-cell': cell,
-      class: 'table__cell',
-      style: { height: this.props.cellHeight+'px', width, minWidth: width },
-    }, [
-      h('div', { class: 'show-content' }, children),
-      h('div', { class: 'edit-content' })
-    ]);
+    return h(
+      'div',
+      {
+        'data-valueType': valueType,
+        'data-cell': cell,
+        class: 'table__cell',
+        style: { height: this.props.cellHeight + 'px', width, minWidth: width },
+      },
+      [
+        h('div', { class: 'show-content' }, children),
+        h('div', { class: 'edit-content' }),
+      ],
+    );
   };
 
-  private tableIndex = (rowIndex: number) => h('div', { 
-    'data-cell': 'index', 
-    class: 'table__cell' 
-  }, [ h('span', { class: 'move', }, '🤚'), rowIndex + 1 ]);
+  private tableIndex = (rowIndex: number) =>
+    h(
+      'div',
+      {
+        'data-cell': 'index',
+        class: 'table__cell',
+      },
+      [h('span', { class: 'move' }, '🤚'), rowIndex + 1],
+    );
 }

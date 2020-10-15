@@ -6,7 +6,7 @@ interface UseFetchdata {
   fetchFn: () => Promise<any>; // 请求函数
 }
 
-function _validResponse (res: any) {
+function _validResponse(res: any) {
   return !res?.errorCode && res?.data;
 }
 
@@ -18,7 +18,7 @@ export function useFetchData({ isReady, fetchFn, validResponse }: UseFetchdata) 
   const errorResData = ref();
   const isLoading = ref(false);
   const resData = ref();
-  
+
   onMounted(async () => {
     if (typeof fetchFn !== 'function') {
       console.warn('fetchFn: 应该式一个返回Promise的函数！');
@@ -39,12 +39,12 @@ export function useFetchData({ isReady, fetchFn, validResponse }: UseFetchdata) 
       if (validResponse(res)) resData.value = res.data;
       else errorResData.value = res;
     }
-  }
+  };
 
   return {
     errorResData,
     isLoading,
     resData,
     fetchData,
-  }
+  };
 }

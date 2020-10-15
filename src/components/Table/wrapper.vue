@@ -1,10 +1,10 @@
 <template>
   <main class="wrapper">
-    <table-bar 
-      :tables="['班级表', '成绩表', '课程表']" 
-      :active="activeTable" 
+    <table-bar
+      :tables="['班级表', '成绩表', '课程表']"
+      :active="activeTable"
       @add=""
-      @change="onActiveChange" 
+      @change="onActiveChange"
     />
     <t-table
       :startIndex="startIndex"
@@ -46,14 +46,17 @@ export default defineComponent({
 
     const { y, x, trigger } = useScroll('.table');
 
-    watch(() => x.value, (value) => {
-      const clientWidth = trigger.value?.clientWidth;
-      if (clientWidth) {
-        if (clientWidth - x.value <= 100) {
-          console.log('renderCell')
+    watch(
+      () => x.value,
+      (value) => {
+        const clientWidth = trigger.value?.clientWidth;
+        if (clientWidth) {
+          if (clientWidth - x.value <= 100) {
+            console.log('renderCell');
+          }
         }
-      }
-    })
+      },
+    );
 
     onMounted(() => {
       const baseColumns: Table.ColumnsItem[] = [
@@ -64,11 +67,13 @@ export default defineComponent({
         { label: '地址', keyCode: 'address', valueType: 'ADDRESS', width: 200 },
         { label: '手机号', keyCode: 'phone', valueType: 'NUMBER', width: 140 },
       ];
-      const addColumns: Table.ColumnsItem[] = new Array(10).fill('').map((item, index) => ({
-        label: 'column'+index,
-        keyCode: 'key'+index,
-        valueType: 'TEXT'
-      }));
+      const addColumns: Table.ColumnsItem[] = new Array(10)
+        .fill('')
+        .map((item, index) => ({
+          label: 'column' + index,
+          keyCode: 'key' + index,
+          valueType: 'TEXT',
+        }));
       columns.value = [...baseColumns, ...addColumns];
       loadMore();
     });
@@ -76,7 +81,10 @@ export default defineComponent({
     const loadMore = () => {
       const list = [];
       for (let i = startIndex.value; i < startIndex.value + 50; i++) {
-        const time = new Date('2020-10-11').toLocaleDateString().split('/').map(i => i.padStart(2, '0'));
+        const time = new Date('2020-10-11')
+          .toLocaleDateString()
+          .split('/')
+          .map((i) => i.padStart(2, '0'));
         list.push({
           id: i + 1,
           name: `小明-${i + 1}`,
@@ -84,14 +92,14 @@ export default defineComponent({
           sid: i + 1,
           like: ['跑步', '篮球', '羽毛球', '足球', '爬山', '街舞', '单车', '跳伞'],
           address: ['广东省', '广州市', '白云区'],
-          phone: 13000000000
+          phone: 13000000000,
         });
       }
-      list.forEach(item => {
-        for (let i=0; i< 90; i++) {
+      list.forEach((item) => {
+        for (let i = 0; i < 90; i++) {
           item[`key${i}`] = `key${i}`;
         }
-      })
+      });
       console.log('loadMore');
       dataSource.value = [...dataSource.value, ...list];
       startIndex.value = dataSource.value.length;
@@ -106,11 +114,11 @@ export default defineComponent({
     const onAddRow = () => {
       const len = dataSource.value.length + 1;
       dataSource.value.push({
-          id: len,
-          no: len,
-          name: '',
-          time: '',
-        });
+        id: len,
+        no: len,
+        name: '',
+        time: '',
+      });
     };
 
     const updateCell = (index: number, keyCode: string, value: any) => {
@@ -119,7 +127,7 @@ export default defineComponent({
 
     const onActiveChange = (active: string) => {
       activeTable.value = active;
-    }
+    };
 
     return {
       activeTable,

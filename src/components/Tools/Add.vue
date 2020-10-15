@@ -1,7 +1,5 @@
 <template>
-  <div class="add" :class="className">
-    ➕
-  </div>
+  <div class="add" :class="className">➕</div>
 </template>
 
 <script lang="ts">
@@ -12,10 +10,10 @@ export default defineComponent({
   props: {
     className: {
       type: String,
-      default: ''
-    }
-  }
-})
+      default: '',
+    },
+  },
+});
 </script>
 
 <style lang="less" scoped>

@@ -52,4 +52,4 @@ export function useScroll(selector?: string) {
     x,
     y,
   };
-};
+}

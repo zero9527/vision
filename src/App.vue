@@ -11,7 +11,7 @@ import TableWrapper from './components/Table/wrapper.vue';
 export default defineComponent({
   name: 'App',
   components: {
-    TableWrapper
+    TableWrapper,
   },
 });
 </script>

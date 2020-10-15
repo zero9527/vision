@@ -1,5 +1,11 @@
 <template>
-  <input class="text" type="text" placeholder="短文本" :defaultValue="value" @change="onChange" />
+  <input
+    class="text"
+    type="text"
+    placeholder="短文本"
+    :defaultValue="value"
+    @change="onChange"
+  />
 </template>
 
 <script lang="ts">
@@ -9,19 +15,19 @@ export default defineComponent({
   name: 'Text',
   props: {
     value: {
-      type: String
-    }
+      type: String,
+    },
   },
   setup(props, ctx) {
     const onChange = (e: any) => {
       ctx.emit('valueChange', e.target.value);
-    }
+    };
 
     return {
-      onChange
-    }
-  }
-})
+      onChange,
+    };
+  },
+});
 </script>
 
 <style lang="less" scoped>

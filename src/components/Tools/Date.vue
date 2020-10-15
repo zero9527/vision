@@ -1,7 +1,7 @@
 <template>
-  <a-date-picker 
-    v-model:value="selectValue" 
-    :getCalendarContainer="triggerNode => triggerNode.parentNode"
+  <a-date-picker
+    v-model:value="selectValue"
+    :getCalendarContainer="(triggerNode) => triggerNode.parentNode"
     @change="onChange"
   />
 </template>
@@ -15,12 +15,12 @@ import { usePropsValue } from '/@/hooks';
 export default defineComponent({
   name: 'Date',
   components: {
-    ADatePicker: DatePicker
+    ADatePicker: DatePicker,
   },
   props: {
     value: {
-      type: String
-    }
+      type: String,
+    },
   },
   setup(props, ctx) {
     const selectValue = usePropsValue(moment(props.value));
@@ -28,14 +28,14 @@ export default defineComponent({
     const onChange = (date: any, dateString: string) => {
       // console.log(date, dateString)
       ctx.emit('valueChange', dateString);
-    }
+    };
 
     return {
       selectValue,
-      onChange
-    }
-  }
-})
+      onChange,
+    };
+  },
+});
 </script>
 
 <style lang="less" scoped>

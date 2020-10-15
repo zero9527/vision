@@ -7,5 +7,4 @@ const app = createApp(App);
 // app.config.productionTip = false;
 // app.config.globalProperties
 
-
 app.mount('#app');

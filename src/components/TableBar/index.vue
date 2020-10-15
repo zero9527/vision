@@ -1,8 +1,8 @@
 <template>
   <div class="table-bar">
-    <span 
-      v-for="(table, index) in tables" 
-      :key="table" 
+    <span
+      v-for="(table, index) in tables"
+      :key="table"
       class="table-bar__item"
       :class="getActive(table, index)"
       @click="onChangeActive(table)"
@@ -23,17 +23,17 @@ export default defineComponent({
     tables: {
       required: true,
       type: Array as PropType<string[]>,
-      default: () => []
+      default: () => [],
     },
     active: {
       required: true,
       type: String,
-    }
+    },
   },
   components: {
-    Add
+    Add,
   },
-  setup (props, ctx) {
+  setup(props, ctx) {
     const onAdd = () => {
       ctx.emit('add');
     };
@@ -45,15 +45,15 @@ export default defineComponent({
 
     const onChangeActive = (active: string) => {
       ctx.emit('change', active);
-    }
+    };
 
     return {
       onAdd,
       getActive,
-      onChangeActive
-    }
-  }
-})
+      onChangeActive,
+    };
+  },
+});
 </script>
 
 <style lang="less" scoped>

@@ -1,7 +1,7 @@
 export type UseClickOutsideReturns = {
   addListener: () => void;
   removeListener: () => void;
-}
+};
 
 /**
  * useClickOutside
@@ -20,7 +20,10 @@ export type UseClickOutsideReturns = {
     this.outsideHandler = useClickOutside(cellElement, this.onClickOutside);
     this.outsideHandler.addListener();
  */
-export function useClickOutside(target: Element | string, cb: Function): UseClickOutsideReturns {
+export function useClickOutside(
+  target: Element | string,
+  cb: Function,
+): UseClickOutsideReturns {
   let isReady = false;
 
   const addListener = () => {
@@ -34,19 +37,18 @@ export function useClickOutside(target: Element | string, cb: Function): UseClic
   };
 
   const clickHandler = (e: MouseEvent) => {
-    let _target = typeof target === 'string' 
-      ? document.querySelector(`${target}`)
-      : target;
+    let _target =
+      typeof target === 'string' ? document.querySelector(`${target}`) : target;
     // console.log(isReady, _target, e.target);
     if (isReady && cb && !_target?.contains(e.target as Node)) {
       cb();
       _target = null;
       removeListener();
     }
-  }
+  };
 
   return {
-    addListener, 
-    removeListener
-  }
+    addListener,
+    removeListener,
+  };
 }

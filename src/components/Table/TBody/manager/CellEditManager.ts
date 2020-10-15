@@ -1,5 +1,11 @@
 import { App, createApp, DefineComponent, h } from 'vue';
-import { getCellElment, getCellValue, getRenderType, renderStaticCell, seperateKeycodeIndex } from '../../utils';
+import {
+  getCellElment,
+  getCellValue,
+  getRenderType,
+  renderStaticCell,
+  seperateKeycodeIndex,
+} from '../../utils';
 import { useClickOutside, UseClickOutsideReturns } from '/@/hooks';
 import NumberComp from '/@/components/Tools/Number.vue';
 import SelectComp from '/@/components/Tools/Select.vue';
@@ -16,21 +22,21 @@ interface CellEditManagerProps {
 
 type ChangeRows = {
   [prop: string]: Table.DataItem;
-}
-
-type CBdata = {
-  offsetWidth: number, 
-  offsetHeight: number, 
-  offsetTop: number, 
-  offsetLeft: number
 };
 
-const compMap: Record<Table.ColumnItemType, DefineComponent> = { 
-  TEXT: TextComp, 
-  NUMBER: NumberComp, 
-  DATE: DateComp, 
+type CBdata = {
+  offsetWidth: number;
+  offsetHeight: number;
+  offsetTop: number;
+  offsetLeft: number;
+};
+
+const compMap: Record<Table.ColumnItemType, DefineComponent> = {
+  TEXT: TextComp,
+  NUMBER: NumberComp,
+  DATE: DateComp,
   SELECT: SelectComp,
-  ADDRESS: AddressComp
+  ADDRESS: AddressComp,
 };
 
 // 当前编辑的单元格对应的组件实例
@@ -54,7 +60,7 @@ export default class CellEditManager {
 
   // 修改的行数据集合
   public changeRows: ChangeRows = {};
-  
+
   constructor(props: CellEditManagerProps) {
     this.props = props;
   }
@@ -68,15 +74,15 @@ export default class CellEditManager {
   private updateCellValue = (value: string) => {
     this.editCell_old = this.editCell;
     this.editCell = value;
-  }
-  
+  };
+
   // 点击外部
   private onClickOutside = () => {
     if (this.outsideHandler) this.outsideHandler.removeListener();
     this.destroyEditCell(this.editCell);
     this.props.clearEditCell();
-  }
-  
+  };
+
   // 编辑的组件回调函数，使用@change的话调用了两次
   private onCellValueChange = (value: string | number) => {
     // 更新数据
@@ -90,9 +96,9 @@ export default class CellEditManager {
     if (!this.getEditCell) return;
     const [keyCode, index] = seperateKeycodeIndex(this.getEditCell);
     this.changeRows[index] = Object.assign(
-      {}, 
-      this.changeRows[index] || this.props.dataSource[index], 
-      { [keyCode]: value }
+      {},
+      this.changeRows[index] || this.props.dataSource[index],
+      { [keyCode]: value },
     );
   };
 
@@ -102,13 +108,21 @@ export default class CellEditManager {
     const oldEditCell = getCellElment(this.getEditCell);
     const oldShowContent = oldEditCell.querySelector(`.show-content`)!;
     const [keyCode, index] = seperateKeycodeIndex(this.getEditCell);
-    const valueType = oldEditCell.dataset['valueType'.toLowerCase()] as Table.ColumnItemType;
+    const valueType = oldEditCell.dataset[
+      'valueType'.toLowerCase()
+    ] as Table.ColumnItemType;
     createApp({
-      render: () => renderStaticCell(h, getRenderType(h, { // 自定义列渲染
-        columns: this.props.columns, 
-        dataItem: this.changeRows[index] || this.props.dataSource[index], 
-        keyCode
-      }), valueType)
+      render: () =>
+        renderStaticCell(
+          h,
+          getRenderType(h, {
+            // 自定义列渲染
+            columns: this.props.columns,
+            dataItem: this.changeRows[index] || this.props.dataSource[index],
+            keyCode,
+          }),
+          valueType,
+        ),
     }).mount(oldShowContent);
   };
 
@@ -119,10 +133,11 @@ export default class CellEditManager {
 
     const oldActiveRow = this.changeRows[indexOld];
     if (!oldActiveRow) return; // 第一一次编辑
-    
+
     if (this.updatedRows[indexOld]) {
-      const hasChange = Object.keys(this.updatedRows[indexOld])
-        .some(key => oldActiveRow[key] !== this.updatedRows[indexOld][key]);
+      const hasChange = Object.keys(this.updatedRows[indexOld]).some(
+        (key) => oldActiveRow[key] !== this.updatedRows[indexOld][key],
+      );
       if (!hasChange) return; // 已经更新过了
     }
 
@@ -138,10 +153,14 @@ export default class CellEditManager {
   };
 
   // 渲染编辑单元格
-  public renderEditCell = ({ currentCell, setTableScroll, cb }: {
-    currentCell: string, 
-    setTableScroll: Function, 
-    cb: (data: CBdata) => void
+  public renderEditCell = ({
+    currentCell,
+    setTableScroll,
+    cb,
+  }: {
+    currentCell: string;
+    setTableScroll: Function;
+    cb: (data: CBdata) => void;
   }) => {
     this.destroyEditCell(this.editCell);
     this.updateCellValue(currentCell);
@@ -149,7 +168,7 @@ export default class CellEditManager {
     const value = getCellValue(this.changeRows, this.props.dataSource, currentCell);
     const cellElement = getCellElment(currentCell);
     cellElement.classList.add('edit');
-    
+
     if (this.outsideHandler) this.outsideHandler.removeListener();
     this.outsideHandler = useClickOutside(cellElement, this.onClickOutside);
     this.outsideHandler.addListener();
@@ -158,15 +177,15 @@ export default class CellEditManager {
     const rect = cellElement.getBoundingClientRect();
     // 部分被隐藏时，滚动到可视区域
     setTableScroll(rect);
-    
+
     cb({ offsetWidth, offsetHeight, offsetTop, offsetLeft });
-    
+
     let cellEditContent: Element | null = cellElement.querySelector('.edit-content');
     const type = cellElement!.dataset['valueType'.toLowerCase()] as Table.ColumnItemType;
 
-    EditComp = createApp(compMap[type], { 
-      value, 
-      onValueChange: this.onCellValueChange 
+    EditComp = createApp(compMap[type], {
+      value,
+      onValueChange: this.onCellValueChange,
     });
     EditComp.mount(cellEditContent);
     cellEditContent = null;
@@ -179,5 +198,5 @@ export default class CellEditManager {
     if (!cell) return;
     this.updateCellValue('');
     if (EditComp) EditComp.unmount(EditComp._container);
-  }
+  };
 }

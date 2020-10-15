@@ -39,17 +39,25 @@ export function getRenderType(
 
 // valueType
 export function getValueType(columns: Table.ColumnsItem[], keyCode: string) {
-  const item = columns.find(i => i.keyCode === keyCode);
+  const item = columns.find((i) => i.keyCode === keyCode);
   return item?.valueType;
 }
 
 // 单元格 静态显示
-export function renderStaticCell(h: any, value: any, valueType: Table.ColumnItemType): VNode {
+export function renderStaticCell(
+  h: any,
+  value: any,
+  valueType: Table.ColumnItemType,
+): VNode {
   // 数字
   if (valueType === 'NUMBER') {
-    return h('span', { 
-      style: { backgroundColor: 'aquamarine' }
-    }, value);
+    return h(
+      'span',
+      {
+        style: { backgroundColor: 'aquamarine' },
+      },
+      value,
+    );
   }
 
   // 日期
@@ -59,9 +67,18 @@ export function renderStaticCell(h: any, value: any, valueType: Table.ColumnItem
 
   // 选择
   if (valueType === 'SELECT') {
-    return h('span', value.map((label: string) => h('span', { 
-      class: 'table__cell-select-item'
-     }, label)));
+    return h(
+      'span',
+      value.map((label: string) =>
+        h(
+          'span',
+          {
+            class: 'table__cell-select-item',
+          },
+          label,
+        ),
+      ),
+    );
   }
 
   // 地址
@@ -83,16 +100,13 @@ export function setRowActive(currentTarget: HTMLElement) {
     oldActiveRow = null;
   }
   currentTarget.classList.add('active');
-};
+}
 
 // 获取单元格的cell名称
 export function getCellName(e: MouseEvent) {
   let currentRow: HTMLElement | null = e.currentTarget as HTMLElement;
   let columnRowCell: HTMLElement | null = e.target! as HTMLElement;
-  while (
-    currentRow.contains(columnRowCell) && 
-    !columnRowCell!.dataset.cell
-  ) {
+  while (currentRow.contains(columnRowCell) && !columnRowCell!.dataset.cell) {
     columnRowCell = columnRowCell?.parentNode as HTMLElement;
   }
   const cellName = columnRowCell!.dataset.cell!;
@@ -100,7 +114,7 @@ export function getCellName(e: MouseEvent) {
   columnRowCell = null;
   return cellName;
 }
-    
+
 // 分割 keyCode, index
 export function seperateKeycodeIndex(cellName: string): [string, number] {
   const [keyCode, index] = cellName.split('_') as [string, number];
@@ -112,7 +126,7 @@ export function getCellValue(changeRows: any, dataSource: any[], cellName: strin
   const [keyCode, index] = cellName.split('_') as [string, number];
   // 优先使用修改的数据
   if (changeRows[index]) return changeRows[index][keyCode];
-  return dataSource[index][keyCode]; 
+  return dataSource[index][keyCode];
 }
 
 // 获取当前编辑的cell css选择器

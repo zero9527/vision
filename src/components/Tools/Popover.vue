@@ -3,9 +3,9 @@
     <span class="popover__content" ref="popover__content" @click="onShowClick">
       <slot />
     </span>
-    <div 
-      v-if="dialogVisible" 
-      class="popover__dialog" 
+    <div
+      v-if="dialogVisible"
+      class="popover__dialog"
       :class="absolute ? 'absolute' : 'fixed'"
       :style="`top: ${pos.top}; right: ${pos.right};`"
     >
@@ -23,8 +23,8 @@ export default defineComponent({
   props: {
     absolute: {
       type: Boolean,
-      default: true // false // 默认固定定位
-    }
+      default: true, // false // 默认固定定位
+    },
   },
   setup(props, ctx) {
     const popoverRef = ref<any>(null);
@@ -34,19 +34,22 @@ export default defineComponent({
 
     const onClickOutside = () => closeDialog();
 
-    const {
-      addListener, 
-      removeListener 
-    } = useClickOutside('.popover__dialog', onClickOutside);
+    const { addListener, removeListener } = useClickOutside(
+      '.popover__dialog',
+      onClickOutside,
+    );
 
     onMounted(() => {
-      if (!props.absolute) renderPopoverFixed(); 
+      if (!props.absolute) renderPopoverFixed();
     });
 
-    watch(() => dialogVisible.value, (val) => {
-      if (val) setTimeout(() => addListener(), 10);
-      else removeListener();
-    })
+    watch(
+      () => dialogVisible.value,
+      (val) => {
+        if (val) setTimeout(() => addListener(), 10);
+        else removeListener();
+      },
+    );
 
     // 固定定位
     const renderPopoverFixed = () => {
@@ -59,11 +62,11 @@ export default defineComponent({
     const onShowClick = () => {
       dialogVisible.value = !dialogVisible.value;
       popover__content.value!.scrollIntoView();
-    }
+    };
 
     const closeDialog = () => {
       dialogVisible.value = false;
-    }
+    };
 
     return {
       popoverRef,
@@ -71,9 +74,9 @@ export default defineComponent({
       pos,
       dialogVisible,
       onShowClick,
-      closeDialog
-    }
-  }
+      closeDialog,
+    };
+  },
 });
 </script>
 
@@ -89,7 +92,7 @@ export default defineComponent({
     display: inline-block;
     padding: 8px;
     background: #fff;
-    box-shadow: 1px 1px 10px rgba(0,0,0,0.2);
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
     z-index: 10;
 
     &.absolute {

@@ -25,7 +25,7 @@ export declare namespace Table {
     keyCode: string; // 数据源中显示的字段对应的属性名
     label: string; // 名称
     valueType: ColumnItemType; // 组件类型，在新增列时确定
-    align?: 'left' | 'center' | 'right',
+    align?: 'left' | 'center' | 'right';
     fixed?: boolean; // 固定列
     hidden?: boolean; // 不显示
     readonly?: boolean; // 只读

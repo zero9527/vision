@@ -1,5 +1,16 @@
 <script lang="ts">
-import { defineComponent, h, inject, nextTick, onMounted, onUnmounted, PropType, reactive, ref, watch } from 'vue';
+import {
+  defineComponent,
+  h,
+  inject,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  PropType,
+  reactive,
+  ref,
+  watch,
+} from 'vue';
 import CellRenderManager from './manager/CellRenderManager';
 import CellEditManager from './manager/CellEditManager';
 import { getCellName, getEditCellSelector, setRowActive } from '../utils';
@@ -29,37 +40,44 @@ export default defineComponent({
     onMounted(() => {
       window.addEventListener('keydown', onTabClick);
     });
- 
+
     onUnmounted(() => {
       window.removeEventListener('keydown', onTabClick);
       cellEditManager.value?.destroyEditCell(editCell.value);
     });
 
-    watch(() => [cellHeight.value, props.columns, props.dataSource], () => {
-      cellRenderManager.value = new CellRenderManager({ 
-        columns: props.columns, 
-        dataSource: props.dataSource,
-        cellHeight: cellHeight.value, 
-        onRowClick 
-      });
-      cellEditManager.value = new CellEditManager({
-        columns: props.columns,
-        dataSource: props.dataSource,
-        clearEditCell,
-      });
-      nextTick(() => cellRenderManager.value!.renderRowFrame());
-    }, { deep: true });
+    watch(
+      () => [cellHeight.value, props.columns, props.dataSource],
+      () => {
+        cellRenderManager.value = new CellRenderManager({
+          columns: props.columns,
+          dataSource: props.dataSource,
+          cellHeight: cellHeight.value,
+          onRowClick,
+        });
+        cellEditManager.value = new CellEditManager({
+          columns: props.columns,
+          dataSource: props.dataSource,
+          clearEditCell,
+        });
+        nextTick(() => cellRenderManager.value!.renderRowFrame());
+      },
+      { deep: true },
+    );
 
-    watch(() => editCell.value, (value, oldValue) => {
-      if (oldValue) {
-        cellEditManager.value?.updateRowData(value, oldValue);
-        const selector = getEditCellSelector(oldValue);
-        let oldEditCell = document.querySelector(selector) as Element;
-        if (oldEditCell) {
-          oldEditCell.classList.remove('edit');
+    watch(
+      () => editCell.value,
+      (value, oldValue) => {
+        if (oldValue) {
+          cellEditManager.value?.updateRowData(value, oldValue);
+          const selector = getEditCellSelector(oldValue);
+          let oldEditCell = document.querySelector(selector) as Element;
+          if (oldEditCell) {
+            oldEditCell.classList.remove('edit');
+          }
         }
-      }
-    });
+      },
+    );
 
     // 编辑一个单元格的时候，点击tab，切换到编辑同一行下一个单元格
     const onTabClick = (e: KeyboardEvent) => {
@@ -69,15 +87,16 @@ export default defineComponent({
         const nextEditCell = currentEditCell.nextElementSibling as HTMLElement;
         if (nextEditCell) nextEditCell.click();
       }
-    }
+    };
 
     // 行点击事件代理，不直接对每个cell绑定事件
     const onRowClick = (e: MouseEvent) => {
       e.stopPropagation();
       setRowActive(e.currentTarget as HTMLElement);
-      
+
       const currentCell = getCellName(e);
-      if (!currentCell || currentCell === 'index' || editCell.value === currentCell) return;
+      if (!currentCell || currentCell === 'index' || editCell.value === currentCell)
+        return;
       editCell.value = currentCell;
 
       cellEditManager.value?.renderEditCell({
@@ -88,13 +107,13 @@ export default defineComponent({
           editCellStyle.height = pos.offsetHeight;
           editCellStyle.top = pos.offsetTop;
           editCellStyle.left = pos.offsetLeft;
-        }
+        },
       });
     };
 
     const clearEditCell = () => {
       editCell.value = '';
-    }
+    };
 
     // 手动逐行渲染 renderRowFrame
     return () => h('section', { class: 'table__body' });
