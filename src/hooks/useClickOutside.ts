@@ -6,7 +6,7 @@ export type UseClickOutsideReturns = {
 /**
  * useClickOutside
  * @description 可以手动添加监听 addListener，移除监听 removeListener，任意地方使用
- * @param target {Element/string} 目标元素或选择器，之外的视为外部
+ * @param target {Element/string} 目标元素或选择器，之外的视为外部；支持多个元素
  * @param cb {function} 回调函数
  * @example
  *  const onClickOutside = () => closeDialog();
@@ -36,16 +36,24 @@ export function useClickOutside(
     window.removeEventListener('click', clickHandler, false);
   };
 
+  const getElem = (_target: string | Element) => {
+    return typeof _target === 'string' ? document.querySelector(_target) : _target;
+  }
+
   const clickHandler = (e: MouseEvent) => {
-    let _target =
-      typeof target === 'string' ? document.querySelector(`${target}`) : target;
+    let isContains = false;
+    if (Array.isArray(target)) {
+      isContains = target.some(el => getElem(el)?.contains(e.target as Node));
+    } else {
+      const targetElem = getElem(target);
+      isContains = targetElem ? targetElem.contains(e.target as Node) : false;
+    }
     // console.log(isReady, _target, e.target);
-    if (isReady && cb && !_target?.contains(e.target as Node)) {
+    if (isReady && cb && !isContains) {
       cb();
-      _target = null;
       removeListener();
     }
-  };
+  }
 
   return {
     addListener,
