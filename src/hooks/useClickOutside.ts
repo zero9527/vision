@@ -43,10 +43,10 @@ export function useClickOutside(
   const clickHandler = (e: MouseEvent) => {
     let isContains = false;
     if (Array.isArray(target)) {
-      isContains = target.some(el => getElem(el)?.contains(e.target as Node));
+      isContains = target.some(el => getElem(el)?.contains(e.currentTarget as Node));
     } else {
       const targetElem = getElem(target);
-      isContains = targetElem ? targetElem.contains(e.target as Node) : false;
+      isContains = targetElem ? targetElem.contains(e.currentTarget as Node) : false;
     }
     // console.log(isReady, _target, e.target);
     if (isReady && cb && !isContains) {
